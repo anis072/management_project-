@@ -22,40 +22,45 @@ class UserController extends Controller
      */
     public function index()
     {
-        //
-        return User::where('role','<>','chef de projet')->where('role','<>','admin')->where('role','<>','client')->latest()->paginate(10);
-
+        $user = User::where('role','<>','chef de projet')->where('role','<>','admin')->where('role','<>','client')->latest()->paginate(2);
+        return response()->json([
+        "user" => $user
+        ]);
     }
     // bloc chef de projet
     public function chef(){
-        return User::where('role','chef de projet')->latest()->paginate(10);
+        $chef= User::where('role','chef de projet')->first();
+        return response()->json([
+            "Chef" => $chef
+        ]);
     }
-   
+
   public function  ajouterChefDeProjet(Request $request){
-  $validator= $this->validate($request,[
+            $this->validate($request,[
           'name' => 'required|string|min:3|max:20',
           'email' =>'required|string|email|unique:users',
           'password'=> 'required|string|min:6',
-          'tel' => 'required'
+          'phone' => 'required|numeric|min:8'
            ]);
-           $data = array( 
+           $data = array(
             'login'    => $request->email,
             'password' => $request->password,
             'role'  => "chef de projet"
         );
 
-        Mail::to($request->email)->send(new loginMail($data));
-
         return User::create([
             'name' => $request->name,
            'email'=> $request->email,
            'password'=> bcrypt($request->password),
-           'tel'=> $request->tel,
+           'phone'=> $request->phone,
            'role'=> "chef de projet"
 
        ]);
 
-
+        Mail::to($request->email)->send(new loginMail($data));
+   return response()->json([
+       "action"=>"Team Leader added"
+   ]);
     }
     //bloc client
     public function  ajouterClient(Request $request){
@@ -63,41 +68,32 @@ class UserController extends Controller
                 'name' => 'required|string|min:3|max:20',
                 'email' =>'required|string|email|unique:users',
                 'password'=> 'required|string|min:6',
-                'tel' => 'required'
+                'phone' => 'required|numeric|min:8'
                  ]);
-                 $data = array( 
+                 $data = array(
                     'login'    => $request->email,
                     'password' => $request->password,
                     'name'  => $request->name
                 );
-        
+
                 Mail::to($request->email)->send(new ClientMail($data));
               return User::create([
                   'name' => $request->name,
                  'email'=> $request->email,
                  'password'=> bcrypt($request->password),
-                 'tel'=> $request->tel,
+                 'phone'=> $request->phone,
                  'role'=> "client"
-      
+
              ]);
-      
-      
+
+
           }
           public function client(){
-            return User::where('role','client')->latest()->paginate(10);
+            $client=User::where('role','client')->latest()->paginate(3);
+            return response()->json([
+                "client"=>$client
+            ]);
         }
-        /*public function nomdeprojet(Request $request){
-            $data =$request->all();
-            $client = User::where('role','client')->get();
-      return  $projets=Projet::where('id',$client->id);
-    
-    
-       }*/
-      /* public function updatename(Request $request ){
-      $data =$request->all();
-      User::where('id',$data['client_id'])->update(['project_name'=>$data['client_id']]);
-       }*/
-
        //bloc pour modification des données user connecté
     public function updateuserconnecté(Request $request){
         $id=Auth()->user()->id;
@@ -119,33 +115,33 @@ class UserController extends Controller
             'name' => 'required|string|min:3|max:20',
             'email' =>'required|string|email|unique:users',
             'password'=> 'required|string|min:6',
-            'tel' => 'required',
+            'phone' => 'required',
             'role' => 'required'
              ]);
-             $data = array( 
+             return User::create([
+                'name' => $request->name,
+                'email'=> $request->email,
+                'password'=> bcrypt($request->password),
+                'phone'=> $request->phone,
+                'role'=> $request->role,
+
+            ]);
+             $data = array(
                 'login'    => $request->email,
                 'password' => $request->password,
                 'role'  => $request->role
             );
-  
             Mail::to($request->email)->send(new loginMail($data));
-        return User::create([
-                'name' => $request->name,
-                'email'=> $request->email,
-                'password'=> bcrypt($request->password),
-                'tel'=> $request->tel,
-                'role'=> $request->role,
-               
-            ]);
-
-
-
-
+          return response()->json([
+              "action"=>"membre aded"
+          ]);
         }
         public function clientprojet(){
 
-            return User::where('role','client')->latest()->paginate(100);
-    
+            $client= User::where('role','client')->get();
+            return response()->json([
+               "client"=>$client
+            ]);
         }
     /**
      * Display the specified resource.
@@ -153,13 +149,13 @@ class UserController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+
     public function Membreprojet()
     {
-        return User::where('role','<>','admin')->where('role','<>','chef de projet')->where('role','<>','client')->latest()->paginate(100);
+        $user= User::where('role','<>','admin')->where('role','<>','chef de projet')->where('role','<>','client')->get();
+        return response()->json([
+            "User"=> $user
+        ]);
     }
 
     /**
@@ -177,25 +173,37 @@ class UserController extends Controller
          $this->validate($request,[
             'name' => 'string|min:3|max:20',
             'email' => 'string|email|unique:users,email,'.$user->id,
-           //'password'=> 'string|min:6',
-            //'tel' => 'min:8|max:8'
+            'password'=> 'required|string|min:6',
+            'phone' => 'required|min:8'
              ]);
-             
+
           $data = $request->all();
           if ($user->role === 'chef de projet'){
-  DB::table('users')->where('id',$id)->update(['name'=>$data['name'],'email'=>$data['email'],'password'=>bcrypt($data['password']),'tel'=>$data['tel']]);
+
+            DB::table('users')->where('id',$id)->update(['name'=>$data['name'],'email'=>$data['email'],'password'=>bcrypt($data['password']),'phone'=>$data['phone']]);
                }
                else if($user->role === 'client'){
-  DB::table('users')->where('id',$id)->update(['name'=>$data['name'],'email'=>$data['email'],'password'=>bcrypt($data['password']),'tel'=>$data['tel']]);
-  DB::table('projets')->where('client_id',$id)->update(['owner'=>$data['name']]);
+             DB::table('users')->where('id',$id)->update(['name'=>$data['name'],'email'=>$data['email'],'password'=>bcrypt($data['password']),'phone'=>$data['phone']]);
+             DB::table('projets')->where('client_id',$id)->update(['owner'=>$data['name']]);
                }
                else {
-  DB::table('users')->where('id',$id)->update(['name'=>$data['name'],'email'=>$data['email'],'password'=>bcrypt($data['password']),'tel'=>$data['tel'],'role'=>$data['role']]);
+              DB::table('users')->where('id',$id)->update(['name'=>$data['name'],'email'=>$data['email'],'password'=>bcrypt($data['password']),'phone'=>$data['phone'],'role'=>$data['role']]);
                }
     }
     public function chefprojet(){
-    return User::where('role','chef de projet')->latest()->paginate(150);
-    }
+    $chef= User::where('role','chef de projet')->get();
+    return response()->json([
+        "Chef"=> $chef
+    ]);
+
+}
+public function chefprojetwP(){
+    $chef= User::where('role','chef de projet')->latest()->paginate(2);
+    return response()->json([
+        "Chef"=> $chef
+    ]);
+
+}
 
     /**
      * Remove the specified resource from storage.

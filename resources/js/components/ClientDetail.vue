@@ -15,16 +15,16 @@
           <!-- /.card-header -->
           <div class="card-body" style="display: block;">
             <div class="row">
-               <div v-for="client in clients"  v-if=" client.id == key"  :key="client.id" >
+               <div v-for="client in clients.client"  v-if=" client.id == key"  :key="client.id" >
                   <div class=" ml-2">
                   <label>Name :</label>
                  <p>{{ client.name }}</p>
                   <label>Email:</label>
                  <p>{{ client.email }}</p>
                   <label>Phone:</label>
-                 <p>{{ client.tel }}</p>
+                 <p>{{ client.phone }}</p>
                  <label >Projects:</label>
-                  <ul v-for="projet in projets"  v-if=" projet.client_id == key"  :key="projet.id">
+                  <ul v-for="projet in projets.project"  v-if=" projet.client_id == key"  :key="projet.id">
 
 
                          <li>{{ projet.name }} </li>
@@ -84,11 +84,11 @@ export default {
  methods:{
  afficherClients(){
   axios.get('/api/clientp')
-     .then(({data}) => {this.clients=data.data});
+     .then(({data}) => {this.clients=data});
  },
  afficherProjets(){
   axios.get('/api/getProjects')
-     .then(({data}) => {this.projets=data.data});
+     .then(({data}) => {this.projets=data});
  },
 
  },

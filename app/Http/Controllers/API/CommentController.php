@@ -30,13 +30,15 @@ class CommentController extends Controller
          $commentaire->comment_user_name=$commentaire->user->name;
          $commentaire->projet_id=$key;
         $projet->comments()->save($commentaire);
-    
+
      $data= array(
          'id' => $projet->id,
          'projet' => $projet->name,
      );
      Notification::send($commentaire->projet->users->where('id','<>',auth()->user()->id),new NewProjectCommentaire($data));
-
+    return response()->json([
+        "action"=>"Commentaire added"
+    ]);
     }
     public function storet($key){
         $task=Task::find($key);
@@ -52,7 +54,10 @@ class CommentController extends Controller
         'task' => $task->name,
     );
     Notification::send($projet->users->where('id','<>',auth()->user()->id),new NewTaskComment($data));
-    }
+    return response()->json([
+        "action"=>"Commentaire added"
+    ]);
+   }
     public function storereply(Request $request,$key){
         $data =$request->all();
         $user=User::find(Auth()->user()->id);
@@ -72,7 +77,10 @@ class CommentController extends Controller
     if ($usersend->id <> auth()->id()){
         Notification::send($usersend,new ResponseProjectCommentaire($data));
         }
-    
+        return response()->json([
+            "action"=>"Commentaire reply added"
+        ]);
+
 
    }
    public function storereplyt(Request $request,$key){
@@ -83,10 +91,10 @@ class CommentController extends Controller
     $commentairereply->user_id= auth()->user()->id;
    $commentairereply->body = $data['body'];
    $commentairereply->comment_user_name=$user->name;
-   //$commentairereply->projet_id=$commentaire->projet_id;
+
    $commentaire->comments()->save($commentairereply);
    $task=Task::where('id',$commentaire->task_id)->first();
-//$projet=Projet::where('id',$commentaire->projet_id)->first();
+
 $usersend=User::where('id',$commentaire->user_id)->first();
    $data= array(
     'id' => $task->id,
@@ -95,18 +103,24 @@ $usersend=User::where('id',$commentaire->user_id)->first();
 if ($usersend->id <> auth()->id()){
 Notification::send($usersend,new TaskReplyComment($data));
 }
-
+return response()->json([
+    "action"=>"Commentaire reply added"
+]);
 }
 public function show(){
    // $commentaire =Commentaire::user()->name;
-    return  Commentaire::where('commentable_type','App\Projet')->paginate(100);
-
+    $comments= Commentaire::where('commentable_type','App\Projet')->get();
+    return response()->json([
+        "comment"=>$comments
+    ]);
 }
 public function showreply(){
     // $commentaire =Commentaire::user()->name;
-   $comment=Commentaire::where('commentable_type','App\Commentaire')->latest()->paginate(150);
+   $comment=Commentaire::where('commentable_type','App\Commentaire')->get();
 
-   return $comment ;
+   return response()->json([
+    "commentreply"=>$comment
+]);
  }
  public function showt(){
     // $commentaire =Commentaire::user()->name;

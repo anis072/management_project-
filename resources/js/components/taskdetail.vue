@@ -6,9 +6,9 @@
         <div class="card-header">
           <h3 class="card-title">Task Detail</h3>
           <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
+          <div class="modal-dialog" role="document">
+          <div class="modal-content">
+          <div class="modal-body">
                <form @submit="formSubmit" enctype="multipart/form-data">
                  <label for="name">Name</label>
                    <input id="name" class="form-control" type="text" name="name"></input>
@@ -16,7 +16,7 @@
                      Choose file:</label></div></div>
                       <button  class="btn btn-success mt-2">Submit</button>
                </form>
-       </div>
+      </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
@@ -60,7 +60,20 @@
                     </div>
                   </div>
                 </div>
-
+                   <div class="col-12 col-sm-4"  v-for="(membre,index) in membres" :key="index" v-if="membre.id == task.user_id ">
+                  <div class="info-box bg-light">
+                    <div class="info-box-content">
+                      <span class="info-box-text text-center" style="color: blue;"
+                      >
+                      Assign to</span>
+                      <span class="info-box-number text-center  mb-0"
+                      >
+                      <img class=" img-circle float-left ml-0" :src="`/img/profile/${ membre.photo }`"
+                      alt="User profile picture" style="width:30px;"> &nbsp;
+                   {{membre.name}}</span>
+                    </div>
+                  </div>
+                </div>
                 </div>
                 <div class="row">
                 <div class="col-12">
@@ -70,7 +83,7 @@
                             <form @submit.prevent="ajouterCommentaire()">
                             <div class="input-group input-group-sm mb-0">
                             <input class="form-control form-control-sm" v-model="form.body" type="text" name="body"
-                            :class="{ 'is-invalid': form.errors.has('body') }"  placeholder="commenter.." style="width:450px;">
+                            :class="{ 'is-invalid': form.errors.has('body') }"  placeholder="commenter.." style="width:450px;" required>
                             <has-error :form="form" field="body"></has-error>
                                     <div class="input-group-append">
                                             <button type="submit" class="btn btn-success " >Comment</button>
@@ -155,8 +168,10 @@ export default {
                 membre:{
                 name:''
                 },
-             }},
-              methods:{
+}},
+ methods:{       afficherMembre(){
+                   axios.get('/api/membretask/').then(({ data }) =>(this.membres = data));
+                  },
                 afficherTask(){
                   axios.get('/api/tasks')
                    .then(({data}) => {this.tasks=data.data});
@@ -222,7 +237,7 @@ fire.$on('ajoutcommentaire',()=>{
 this.afficherTask();
 this.afficherComments();
 this.showreply();
-
+this.afficherMembre();
 },
 mounted() {
   console.log('Component mounted.')

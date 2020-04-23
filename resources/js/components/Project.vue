@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-           <div class="col-md-12 mt-4">
+           <div class="col-sm-12 mt-4">
             <div class="card" v-if="$acces.Admin()">
               <div class="card-header">
                 <h3 class="card-title"> Projects:</h3>
@@ -13,38 +13,33 @@
               </div>
               <!-- /.card-header -->
               <div class="card-body table-responsive p-0">
-                <table class="table table-hover">
+                <table class="table">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Client</th>
-                      <th>Description</th>
-                      <th>Duration</th>
-                      <th>Budget </th>
-                      <th>advancement</th>
-                      <th>Operation</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Client</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Duration</th>
+                      <th scope="col">Budget </th>
+                      <th scope="col">advancement</th>
+                      <th scope="col">Operation</th>
                     </tr>
                   </thead>
                   <tbody>
-                   <tr v-for="projet in projets.data" :key="projet.id" >
-            <td> <router-link :to="`/detail/${projet.id}`" style="text-decoration:none; color:black;">{{ projet.name }}</router-link></td>
+                   <tr v-for="projet in projets.projets.data" :key="projet.id" >
+            <td scope="row"> <router-link :to="`/detail/${projet.id}`" style="text-decoration:none; color:black;">{{ projet.name }}</router-link></td>
 
                       <td>
                        {{ projet.owner }}
                        </td>
 
                       <td><a  style=""  href="#" @click="chargerid(projet.description)" class="btn btn-secondary" data-toggle="modal" data-target="#description"><i class="fas fa-sticky-note"></i></a></td>
-                      <td>{{ projet.durre }}</td>
+                      <td>{{ projet.duration }}</td>
                       <td>{{projet.budget}}</td>
                       <td>-------</td>
                       <td><a href="#" class="btn" style="background-color: #00a8cc" @click="editProjet(projet)" ><i style="color:#fff" class="fas fa-user-edit"></i></a>
                        <a href="#" class="btn btn-danger" @click="deleteProjet(projet.id)" ><i class="fas fa-trash-alt"></i></a>
                      </td>
-
-
-
-
-
 <!-- Modal -->
 <div class="modal fade" id="description" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -65,15 +60,13 @@
     </div>
   </div>
 </div>
-
-                    </tr>
-
+               </tr>
                   </tbody>
                 </table>
               </div>
               <!-- /.card-body -->
             </div>
-            <pagination :data="projets" @pagination-change-page="getResults"></pagination>
+            <pagination :data="projets.projets" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
  <div v-if="!$acces.Admin()">
@@ -102,41 +95,41 @@
      <div class="form-group">
       <label>Client</label>
 
-      <select v-model="form.client_id"   type="text" name="client_id"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('client_id') } "   >
-        <option value="" disabled selected>Select clientt</option>
-        <option v-for = "(client , index) in clients" :key="index" v-bind:value="client.id">{{ client.name }}</option>
+      <select v-model="form.client"   type="text" name="client"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('client') } "   >
+        <option value="" disabled selected>Select Client</option>
+        <option v-for ="(client , index) in clients.client" :key="index" v-bind:value="client.id">{{ client.name }}</option>
       </select>
-      <has-error :form="form" field="client_id"></has-error>
+      <has-error :form="form" field="client"></has-error>
     </div>
 
-        <div class="form-group" v-if="!$acces.Chef()">
-      <label>Team leader</label>
-      <select v-model="form.chefprojet" type="text" name="chefprojet"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('chefprojet') }">
+        <div class="form-group" v-show="!x" v-if="!$acces.Chef()">
+      <label >Team leader</label>
+      <select v-model="form.leader" type="text" name="leader"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('leader') }">
         <option value="" disabled selected>Select Team leader</option>
-         <option v-for = "(chef , index) in chefs" :key="index" v-bind:value="chef.id">{{ chef.name }}</option>
+         <option v-for ="(chef , index) in chefs.Chef" :key="index" v-bind:value="chef.id">{{ chef.name }}</option>
 
       </select>
-      <has-error :form="form" field="chefprojet"></has-error>
+      <has-error :form="form" field="leader"></has-error>
 
     </div>
     <div v-show="!x">
                 <label>Membres</label>
-                <select   v-model="form.membre_id" type="text" name="membre_id[]" class="form-control" :class="{ 'is-invalid': form.errors.has('membre_id') } " multiple="multiple">
+                <select   v-model="form.membre" type="text" name="membre[]" class="form-control" :class="{ 'is-invalid': form.errors.has('membre') } " multiple="multiple">
                   <option value="" disabled selected>Select membres</option>
-                  <option v-for="(membre , index) in membres" :key="index" v-bind:value="membre.id">
+                  <option v-for="(membre , index) in membres.User" :key="index" v-bind:value="membre.id">
                         {{ membre.name }}
                   </option>
                 </select>
-                <has-error :form="form" field="membre_id"></has-error>
+                <has-error :form="form" field="membre"></has-error>
      </div>
 
      <div class="form-group" >
       <label>Duration</label>
-      <input v-model="form.durre" type="text" name="durre"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('durre') } ">
-      <has-error :form="form" field="durre"></has-error>
+      <input v-model="form.duration" type="text" name="duration"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('duration') } ">
+      <has-error :form="form" field="duration"></has-error>
     </div>
 
      <div class="form-group">
@@ -173,7 +166,9 @@
              data(){
                  return{
                      x:false,
-              projets:{},
+              projets:{
+                  projets:{},
+              },
               projet:{
                   id:''
               },
@@ -182,25 +177,30 @@
        form : new Form({
            id:'',
            name:'',
-           durre:'',
+           duration:'',
            description:'',
            budget:'',
            owner:'',
            membres: "",
-        client_id:"",
-        membre_id: [],
-        chefprojet:''
+        client:"",
+        membre: [],
+        leader:'',
+        chefs:""
 
 
        }),
 
-           clients:[],
+           clients:{
+               clients:{}
+           },
 
            client:{
               id:'',
               name:'',
           },
-            membres: [],
+            membres: {
+                User:{},
+            },
            membre: {
             id: "",
            name: ""
@@ -211,16 +211,14 @@
            name: ""
 
       },
-      chefs:[],
+      chefs:{
+          Chef:{}
+      },
       chef:{
           id:'',
           name:''
       }
-
-
                  }
-
-
              },
 
 
@@ -233,11 +231,19 @@
       this.afficherChef();
 
    fire.$on('ajoutprojet',()=>{
-  this.afficherProjet();
+       this.afficherProjet();
                  });
 
                        },
            methods:{
+                getResults(page = 1) {
+      			axios.get('api/projet?page=' + page)
+				.then(response => {
+				this.projets = response.data;
+                });},
+                afficherProjet(){
+                   axios.get('/api/projet').then(({ data }) =>(this.projets = data));
+                },
                ajouterProjet(){
                 this.form.post("api/projet").then(()=>this.form.post('api/chefdeprojet').then(()=>this.form.post('api/userprojet').then(()=>{
                 fire.$emit('ajoutprojet');
@@ -267,9 +273,8 @@
             confirmButtonText: 'Supprimer!'
             }).then((result) => {
            if(result.value){
-                    this.form.delete('api/projet/' + id).then(function(){
-
-                    seww.fire(
+                this.form.delete('api/projet/' + id).then(function(){
+                seww.fire(
                     'Delete!',
                     'Project deleted.',
                     'success'
@@ -280,28 +285,21 @@
                 }).catch(()=>{
                     seww.fire(
                     'Failure !!!!'
-
-
                     );
                 });
            }
-                })
+            })
             },
-            modifier(){
-
+              modifier(){
                this.form.put('api/projet/'+ this.form.id).then(function(){
-
-             $('#AjouterProjet').modal('hide')
-
+               $('#AjouterProjet').modal('hide')
                     seww.fire(
                     'Edit!',
                     'Your Project has been Updated.',
                     'success'
                     )
                     fire.$emit('ajoutprojet');
-
              }).catch(function(){
-
              })
             },
               editProjet(projet){
@@ -316,30 +314,25 @@
            $("#AjouterProjet").modal('show')
               },
                afficherClient(){
-                   axios.get('api/clientp').then(({data})=>(this.clients =data.data));
+                   axios.get('api/clientp').then(({data})=>(this.clients =data));
 
                },
                chargerid($description){
                      this.desc=$description;
                    },
-               afficherProjet(){
-                   axios.get('api/projet').then(({ data }) =>(this.projets = data));
-                   },
+
                     afficherMembres() {
-                axios.get("api/membrep").then(({ data }) => (this.membres = data.data));
+                axios.get("api/membrep").then(({ data }) => (this.membres = data));
                        },
                    afficherChef(){
-                axios.get("api/chef").then(({ data }) => (this.chefs = data.data));
+                axios.get("api/chef").then(({ data }) => (this.chefs = data));
 
                    },
-                   getResults(page = 1) {
-			axios.get('api/projet?page=' + page)
-				.then(response => {
-					this.projets = response.data;
-				});},
 
 
-                      }, name:'project'
+
+                      },
+            name:'project'
            }
 
 

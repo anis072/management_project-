@@ -29,6 +29,8 @@ Route::post('user-login' ,'API\UserController@login');
 Route::apiResource('membre','API\UserController');
 Route::post('updateuserconnecte','API\UserController@updateuserconnecté');
 Route::get('/chef','API\UserController@chefprojet');
+Route::get('/chefwP','API\UserController@chefprojetwP');
+
 
 //UserProjet
 Route::apiResource('/userprojet' ,'API\UserProjetController');
@@ -86,7 +88,7 @@ Route::get('/userTask','API\TaskController@user');
 Route::get('/hasparent','API\TaskController@hasparent');
 Route::get('membret/{id}','API\UserProjetController@showt');
 Route::get('warn','API\TaskController@warning');
-
+Route::get('membretask','API\TaskController@showmembre');
 
 //reclamation
 Route::resource('reclamation','API\ReclamationController');
@@ -106,7 +108,7 @@ Route::get('/file/{id}','API\FileController@files');
 Route::post('formSubmit/{id}','API\FileController@formSubmit');
 Route::get('/filet/{id}','API\FileController@filest');
 Route::post('formSubmitt/{id}','API\FileController@formSubmitt');
-Route::post('formSubmitR/{id}','API\FileController@formSubmitR');
+Route::post('formSubmitR','API\FileController@formSubmitR');
 
 
 

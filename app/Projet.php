@@ -14,7 +14,7 @@ class Projet extends Model
         return $this->belongsTo(Client::class , 'client_id');
     }
     protected $fillable = [
-        'name', 'durre', 'description','budget','client_id','owner','namec'
+        'name', 'duration', 'description','budget','client','owner','namec','membre'
     ];
     protected $table = 'projets';
     public function comments(){

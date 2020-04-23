@@ -31,23 +31,38 @@ class ReclamationController extends Controller
     {  $user= Auth()->user();
         if ($user->role === 'admin')
         {
-         return Reclamation::latest()->paginate(5);
+         $complain= Reclamation::latest()->paginate(5);
+        return response()->json([
+           "complain"=>$complain
+        ]);
         }
       else  if ($user->role === 'client')
         {
-            return Reclamation::where('client_id',Auth()->id())->latest()->paginate();
+            $complain= Reclamation::where('client_id',Auth()->id())->latest()->paginate();
+            return response()->json([
+                "complain"=>$complain
+             ]);
         }
      else if ($user->role === 'chef de projet')
         {
-            return Reclamation::where('chef_id',Auth()->id())->latest()->paginate();
+            $complain= Reclamation::where('chef_id',Auth()->id())->latest()->paginate();
+            return response()->json([
+                "complain"=>$complain
+             ]);
         }
         else {
-            return Reclamation::where('employe_id',Auth()->id())->latest()->paginate();
+            $complain=Reclamation::where('employe_id',Auth()->id())->latest()->paginate();
+            return response()->json([
+                "complain"=>$complain
+             ]);
         }
     }
   public function  projets(){
-    return Projet::where('client_id',Auth()->id())->latest()->paginate(10);
-  }
+    $project= Projet::where('client_id',Auth()->id())->get();
+    return response()->json([
+       "projects"=>$project
+    ]) ;
+}
     /**
      * Store a newly created resource in storage.
      *
@@ -57,30 +72,30 @@ class ReclamationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'type' =>  'required|string|max:50',
-            'description'=>'required|string|max:250',
-            'projet_id' => 'required',
-            'file' => 'required|mimes:doc,docx,pdf,txt|max:2048'
+            'type' =>  'required',
+            'description'=>'required|string|max:550',
+            'project' => 'required',
+      //      'file' => 'required|mimes:doc,docx,pdf,txt|max:2048'
 
               ]);
           $data = $request->all();
-          $projet=Projet::where('id',$data['projet_id'])->first();
-          $userprojet= ProjetUser::where('projet_id',$data['projet_id'])->where('role','chef de projet')->first();
+          $projet=Projet::where('id',$data['project'])->first();
+          $userprojet= ProjetUser::where('projet_id',$data['project'])->where('role','chef de projet')->first();
           $client= User::where('id',Auth()->id())->first();
           $reclamation = new Reclamation;
           $reclamation->type= $data['type'];
           $reclamation->description= $data['description'];
           $reclamation->avancement= 'Filing of complaint';
           $reclamation->client_id= Auth()->id();
-          $reclamation->projet_id=$data['projet_id'];
+          $reclamation->projet_id=$data['project'];
           $reclamation->nameProjet=$projet->name;
           $reclamation->chef_id=$userprojet->user_id;
           $reclamation->nameClient=$client->name;
           $reclamation->progress=25;
-          $extention = time().'.'.$request->file->getClientOriginalExtension();
-          $fileName =$request->name.'.'.$extention;
-          $request->file->move(public_path('upload'), $fileName);
-          $reclamation->file= $fileName;
+       //   $extention = time().'.'.$request->file->getClientOriginalExtension();
+        //  $fileName =$request->name.'.'.$extention;
+         // $request->file->move(public_path('upload'), $fileName);
+        //  $reclamation->file= $fileName;
           $reclamation->save();
 
 
@@ -96,6 +111,9 @@ class ReclamationController extends Controller
           $user->notify(new reclamationNotification($data));
           $when = now()->addSeconds(10);
           Notification::send( $user,(new NewComplaint ($data))->delay($when));
+          return response()->json([
+            "action"=>"Complain Added"
+          ]);
     }
     /**
      * Display the specified resource.
@@ -103,10 +121,7 @@ class ReclamationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -135,6 +150,9 @@ class ReclamationController extends Controller
             );
             Notification::send($chef,new SendComplaintToLeader($data));
      }
+     return response()->json([
+        "action"=>"Complain Updated"
+      ]);
     }
     /**
      * Remove the specified resource from storage.
@@ -156,15 +174,22 @@ class ReclamationController extends Controller
                Notification::send( $user,new reclamationAssigned ($data));
                $when = now()->addSeconds(10);
                Notification::send( $user,(new NewComplaint ($data))->delay($when));
-           }
+           return response()->json([
+               "action"=>"complain asigned"
+           ]);
+            }
            public function type(Request $request){
             $data =$request->all();
             $type =new TypeComplain;
             $type->type=$data['type'];
             $type->save();
+
         }
         public function gettype(Request $request){
-            return TypeComplain::latest()->paginate(100);
+            $type= TypeComplain::all();
+            return response()->json([
+                "type"=>$type
+            ]);
         }
         public function terminerReclamation($id){
      $reclamation = Reclamation::where('id',$id)->first();
@@ -180,7 +205,10 @@ class ReclamationController extends Controller
      Notification::send($user,new ComplaintFinished($data));
      $when = now()->addSeconds(10);
      Notification::send( $client,(new ComplaintProcessed($data))->delay($when));
-        }
+     return response()->json([
+         "action"=>"complain finished"
+     ]);
+    }
         public function alertReclamation($id){
             $reclamation = Reclamation::where('id',$id)->first();
             $user =User::where('id',$reclamation->employe_id)->first();
@@ -189,7 +217,10 @@ class ReclamationController extends Controller
                 'projet' => $reclamation->nameProjet,
                 );
                 Notification::send($user,new AlertComplaint($data));
-               }
+         return response()->json([
+             "action"=>"added alert"
+         ]);
+            }
     public function destroy($id)
     {
         $reclamation=Reclamation::find($id);

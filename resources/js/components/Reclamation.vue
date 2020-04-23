@@ -1,34 +1,34 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-12 mt-4">
+            <div class="col-sm-12 mt-4">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title"> Reclamations:</h3>
+                <h3 class="card-title"> Complains:</h3>
                 <div class="card-tools" v-if="$acces.client()">
-  <button class="btn btn-success ml-6 mb-3" data-toggle="modal" data-target="#ajouterReclamation" ><i class="fas fa-user"></i> Create </button>
+                <button class="btn btn-success ml-6 mb-3" data-toggle="modal" data-target="#ajouterReclamation" ><i class="fas fa-user"></i> Create </button>
                 </div>
               </div>
               <!-- /.card-header -->
-              <div class="card-body table-responsive p-0">
-                <table class="table table-hover">
+                <div class="">
+                <table class="table ">
                   <thead>
                     <tr>
-                      <th>Type</th>
-                      <th>Description</th>
-                      <th v-if="!$acces.client()"> Advancement </th>
-                      <th v-if="$acces.client()"> Advancement </th>
-                      <th>Project</th>
-                      <th v-if="!$acces.adminchef()">Created_at</th>
-                     <th v-if="!$acces.client()"> client </th>
-                     <th v-if="!$acces.client()">Assign to</th>
-                     <th v-if="$acces.adminchef()"> </th>
-                     <th v-if="$acces.adminchef()"> </th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Description</th>
+                      <th v-if="!$acces.client()" scope="col"> Advancement </th>
+                      <th v-if="$acces.client()" scope="col"> Advancement </th>
+                      <th scope="col">Project</th>
+                      <th v-if="!$acces.adminchef()" scope="col">Created_at</th>
+                     <th v-if="!$acces.client()" scope="col"> client </th>
+                     <th v-if="!$acces.client()" scope="col">Assign to</th>
+                     <th v-if="$acces.adminchef()" scope="col"> </th>
+                     <th v-if="$acces.adminchef()" scope="col"> </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="reclamation in reclamations.data" :key="reclamation.id">
-    <router-link :to="`/detailleReclamation/${reclamation.id}`" style="text-decoration:none; color:black;">  <td>{{reclamation.type}}</td> </router-link>
+                    <tr v-for="reclamation in reclamations.complain.data" :key="reclamation.id">
+                       <router-link :to="`/detailleReclamation/${reclamation.id}`" style="text-decoration:none; color:black;">  <td scope="row">{{reclamation.type}}</td> </router-link>
                        <td><a  style=""  href="#" @click="chargerid(reclamation.description)" class="btn btn-secondary" data-toggle="modal" data-target="#description"><i class="fas fa-sticky-note"></i></a></td>
                       <td v-if="!$acces.client()"> {{reclamation.avancement}} </td>
                       <td v-if="$acces.client()"><h6 v-if="reclamation.avancement == 'Pending Team leader validation'">In progress</h6>
@@ -37,47 +37,47 @@
                       <td>{{reclamation.nameProjet}}</td>
                       <td v-if="!$acces.adminchef()">{{ reclamation.Created_at  | date }}</td>
                       <td v-if="!$acces.client()"> {{reclamation.nameClient}} </td>
-                <td v-if="$acces.adminchef()">
-<div class="dropdown">
-   <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-   <i class="fas fa-user-plus" style="color:#05dfd7;"></i>
-   </a>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenuLink"  name="membre" >
-    <a class="dropdown-item" href="#" v-for="membre in membres" :key="membre.id"    @click="assignTo(reclamation.id,membre.id)"  :value="membre.id"> <img class=" img-circle float-left ml-0" :src="`/img/profile/${ membre.photo }`"
-     alt="User profile picture" style="width:35px;"><span >{{ membre.name }}   </span> </a>
-  </div>
-</div>
-</td>
-                      <td v-for="membre in membres" :key="membre.id" v-if=" reclamation.employe_id == membre.id && !$acces.client()"><img class=" img-circle" :src="`/img/profile/${ membre.photo }`"
+                     <td v-if="$acces.adminchef()">
+                      <div class="dropdown">
+                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-plus" style="color:#05dfd7;"></i>
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink"  name="membre" >
+                          <a class="dropdown-item" href="#" v-for="membre in membres.User" :key="membre.id"  @click="assignTo(reclamation.id,membre.id)"  :value="membre.id"> <img class=" img-circle float-left ml-0" :src="`/img/profile/${ membre.photo }`"
+                          alt="User profile picture" style="width:35px;"><span >{{ membre.name }}   </span> </a>
+                        </div>
+                      </div>
+                      </td>
+                      <td v-for="membre in membres.User" :key="membre.id" v-if=" reclamation.employe_id == membre.id && !$acces.client()"><img class=" img-circle" :src="`/img/profile/${ membre.photo }`"
                       alt="User profile picture" style="width:35px;"><span class="ml-1" >{{ membre.name }}   </span>
                       </td>
-     <td v-if="$acces.adminchef()">
-         <a href="#" @click="Valider(reclamation.id)" v-if="reclamation.avancement == 'Pending Team leader validation' ">
-           <i class="fas fa-check" style="font-size:28px;color:green"> </i> </a>
-           <a href="#" @click="Alert(reclamation.id)" v-if="reclamation.avancement == 'Pending Team leader validation'">
-           <i class="fas fa-times-circle" style="font-size:28px;color:red"></i>
-         </a>
-      <img :src="`/img/icon/verif.png`" style="width:40px;" v-if="reclamation.avancement == 'Finished'">
-       <a href="#" class="btn btn-danger" @click=" deleteReclamation(reclamation.id)" v-if="reclamation.avancement == 'Finished'"><i class="fas fa-trash-alt"></i></a>
-     </td>
-<div class="modal fade" id="description" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Description</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-      {{ desc }}
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
+                      <td v-if="$acces.adminchef()">
+                        <a href="#" @click="Valider(reclamation.id)" v-if="reclamation.avancement == 'Pending Team leader validation' ">
+                          <i class="fas fa-check" style="font-size:28px;color:green"> </i> </a>
+                          <a href="#" @click="Alert(reclamation.id)" v-if="reclamation.avancement == 'Pending Team leader validation'">
+                          <i class="fas fa-times-circle" style="font-size:28px;color:red"></i>
+                        </a>
+                      <img :src="`/img/icon/verif.png`" style="width:40px;" v-if="reclamation.avancement == 'Finished'">
+                      <a href="#" class="btn btn-danger" @click=" deleteReclamation(reclamation.id)" v-if="reclamation.avancement == 'Finished'"><i class="fas fa-trash-alt"></i></a>
+                        </td>
+                              <div class="modal fade" id="description" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel">Description</h5>
+                                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                      </button>
+                                    </div>
+                                    <div class="modal-body">
+                                    {{ desc }}
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                     </tr>
                   </tbody>
                 </table>
@@ -87,7 +87,7 @@
             </div>
         </div>
         <!-- Modal -->
-    <form  @submit="ajouterReclamtion" enctype="multipart/form-data">
+    <form  @submit.prevent="ajouterReclamtion" enctype="multipart/form-data">
 <div class="modal fade" id="ajouterReclamation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -103,18 +103,18 @@
   <select v-model="form.type" type="text" name="type"
         class="form-control" :class="{ 'is-invalid': form.errors.has('type') }">
         <option value="" disabled selected>Select type</option>
-         <option v-for = "(type , index) in types" :key="index" v-bind:value="type.type">{{ type.type }}</option>
+         <option v-for = "(type , index) in types.type" :key="index" v-bind:value="type.type">{{ type.type }}</option>
       </select>
       <has-error :form="form" field="type"></has-error>
     </div>
     <div class="form-group">
       <label>Project</label>
-      <select v-model="form.projet_id"   type="text" name="projet_id"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('projet_id') } "   >
-        <option value="" disabled selected>Select your projet</option>
-        <option v-for = "(projet , index) in projets" :key="index" v-bind:value="projet.id">{{ projet.name }}</option>
+      <select v-model="form.project"   type="text" name="project"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('project') } "   >
+        <option value="" disabled selected>Select your project</option>
+        <option v-for = "(projet , index) in projets.projects" :key="index" v-bind:value="projet.id">{{ projet.name }}</option>
       </select>
-      <has-error :form="form" field="projet_id"></has-error>
+      <has-error :form="form" field="project"></has-error>
     </div>
       <div class="form-group" >
       <label>Description</label>
@@ -165,7 +165,7 @@
                 nameProjet:'',
                 employe_id:'',
                 client_id:'',
-                projet_id:'',
+                project:'',
                 nameClient:'',
                 file:'',
                 avancement:'',
@@ -185,10 +185,10 @@
         },
                methods:{
                    afficherProjet(){
-                   axios.get('api/projetRec').then(({ data }) =>(this.projets = data.data));
+                   axios.get('api/projetRec').then(({ data }) =>(this.projets = data));
                    },
                     afficherMembres(){
-                   axios.get('api/membrep').then(({ data }) =>(this.membres = data.data));
+                   axios.get('api/membrep').then(({ data }) =>(this.membres = data));
                    },
                      onFileChange(e){
                         console.log(e.target.files[0]);
@@ -196,7 +196,7 @@
                     },
                ajouterReclamtion(){
 
-                e.preventDefault();
+
                 let currentObj = this;
 
                 const config = {
@@ -212,7 +212,7 @@
                 $("#ajouterReclamation").modal('hide');
                 Toast.fire({
                         icon: 'success',
-                        title: 'Réclamation created'
+                        title: 'Complains created'
                         })
                            currentObj.success = response.data.success;
 
@@ -260,7 +260,7 @@
             },
              getType(){
                       axios.get('/api/type').then(({data})=>{
-                this.types = data.data;
+                this.types = data;
                       });
                   },
                        deleteReclamation(id){

@@ -13,7 +13,7 @@
                 </div>
               </div>
               <!-- /.card-header -->
-   <form >
+             <form >
               <div class="card-body table-responsive p-0">
                 <table class="table table-hover" >
                   <thead>
@@ -29,7 +29,7 @@
                   <tbody >
 
 
-                    <tr  v-for="task in tasks.data "  v-if=" task.projet_id == key "   :key="task.id">
+                    <tr  v-for="task in tasks.Tasks.data "  v-if=" task.projet_id == key "   :key="task.id">
                      <router-link :to="`/taskdetail/${task.id}`"   style="text-decoration:none; color:black;">   <td >{{ task.text }}</td></router-link>
                       <td >{{ parseInt(100 * task.progress) }}% <img :src="`/img/icon/verif.png.png`" style="width:15px;" v-if="`${parseInt(100 * task.progress)}`==100" > </img> <div class="progress">
 
@@ -41,13 +41,13 @@
                       <td>{{ task.created_at  | date }} </td>
 
                         <td>
-                         <div class="dropdown" v-if=" $acces.Admin() || $acces.Chef()">
+    <div class="dropdown" v-if=" $acces.Admin() || $acces.Chef()">
    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
    <i class="fas fa-user-plus" style="color:#05dfd7;"></i>
    </a>
 
   <div class="dropdown-menu" aria-labelledby="dropdownMenuLink"  name="membre" >
-    <a class="dropdown-item" href="#" v-for="membre in membres" :key="membre.id"    @click="assignTo(task.id,membre.id)"  :value="membre.id"> <img class=" img-circle float-left ml-0" :src="`/img/profile/${ membre.photo }`"
+    <a class="dropdown-item" href="#" v-for="membre in membres.users" :key="membre.id"    @click="assignTo(task.id,membre.id)"  :value="membre.id"> <img class=" img-circle float-left ml-0" :src="`/img/profile/${ membre.photo }`"
      alt="User profile picture" style="width:35px;"><span >{{ membre.name }}   </span> </a>
   </div>
 </div>
@@ -55,7 +55,7 @@
 </td>
 
 
-                      <td v-for="membre in membres" :key="membre.id" v-if=" task.user_id == membre.id"   ><img class=" img-circle" :src="`/img/profile/${ membre.photo }`"
+                      <td v-for="membre in membres.users" :key="membre.id" v-if=" task.user_id == membre.id"   ><img class=" img-circle" :src="`/img/profile/${ membre.photo }`"
                       alt="User profile picture" style="width:35px;"><span class="ml-1" >{{ membre.name }}   </span>
                      </td>
                     </tr>
@@ -66,7 +66,7 @@
               </form>
               <!-- /.card-body -->
             </div>
-              <pagination :data="tasks" @pagination-change-page="getResults"></pagination>
+              <pagination :data="tasks.Tasks" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
          <div v-if="$acces.client()">
@@ -92,7 +92,9 @@
                 tel:'',
                 progress:''
                 }),
-                tasks:{},
+                tasks:{
+                    Tasks:{}
+                },
                 task:{
                     id:'',
                     name:'',
@@ -118,7 +120,8 @@
             }
         },
 
-               methods:{  getResults(page = 1) {
+               methods:{
+                   getResults(page = 1) {
 			axios.get('/api/tasks?page=' + page)
 				.then(response => {
 					this.tasks = response.data;

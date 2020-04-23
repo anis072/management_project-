@@ -39,7 +39,7 @@
 
         </div>
         <div class="card-body" >
-          <div class="row"  v-for="projet in projets"  v-if=" projet.id == key"  :key="projet.id">
+          <div class="row"  v-for="projet in projets.project"  v-if=" projet.id == key"  :key="projet.id">
             <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
               <div class="row">
                 <div class="col-12 col-sm-4">
@@ -78,7 +78,7 @@
                             <form @submit.prevent="ajouterCommentaire()">
                             <div class="input-group input-group-sm mb-0">
                             <input class="form-control form-control-sm" v-model="form.body" type="text" name="body"
-                            :class="{ 'is-invalid': form.errors.has('body') }"  placeholder="commenter.." style="width:450px;">
+                            :class="{ 'is-invalid': form.errors.has('body') }"  placeholder="commenter.." style="width:450px;" required>
                             <has-error :form="form" field="body"></has-error>
                                     <div class="input-group-append">
                                             <button type="submit" class="btn btn-success " >Comment</button>
@@ -86,10 +86,10 @@
                                     </div>
                             </form>
                       </div>
-                       <div v-for="comment in comments"  :key="comment.id"   v-if=" key == comment.commentable_id  "  class=" align-items mt-3">
+                       <div v-for="comment in comments.comment"  :key="comment.id"   v-if=" key == comment.commentable_id  "  class=" align-items mt-3">
                             <span class="badge badge-primary"> {{ comment.comment_user_name }}</span >&nbsp;&nbsp; <span style="color:black;">{{ comment.body }}</span>
                             &nbsp;&nbsp;&nbsp; <b> <small class="badge badge-success" style="float:right; color:#2d132c " >Posted at {{ comment.created_at || date }} </small></b>
-                                   <div v-for="commentreply in commentsreply"  :key="commentreply.id"   v-if=" comment.id == commentreply.commentable_id "  class=" align-items mt-3">
+                                   <div v-for="commentreply in commentsreply.commentreply"  :key="commentreply.id"   v-if=" comment.id == commentreply.commentable_id "  class=" align-items mt-3">
                                    <i class="fas fa-reply"></i><span class="badge badge-primary ml-4"> {{ commentreply.comment_user_name }}</span >&nbsp;&nbsp;<span style="color:black;"> {{ commentreply.body }}
                      </span> &nbsp;&nbsp;&nbsp; <b> <small class="badge badge-success" style="float:right; color:#2d132c " >Posted at {{ commentreply.created_at || date }} </small></b>
                             </div>
@@ -98,7 +98,7 @@
                             <form    type="post"  @submit.prevent="ajouterCommentaireReponse(comment.id)"  v-bind:id="comment.id "  class="d-none">
                          <div class="input-group input-group-sm mt-2 ml-2">
                             <input class="form-control form-control-sm" name="replycomment"  v-model="form1.body" type="text"
-                                                   :class="{ 'is-invalid': form1.errors.has('body') }"  placeholder="commenter.." style="width:450px;">
+                                                   :class="{ 'is-invalid': form1.errors.has('body') }"  placeholder="commenter.." style="width:450px;" required>
                             <has-error :form="form1" field="replycomment"></has-error>
                                     <div class="input-group-append">
                                             <button type="submit" class="btn btn-success "  >Comment</button>
@@ -113,7 +113,7 @@
               </div>
             </div>
             <div class="col-12 col-md-12 col-lg-4 order-1 order-md-2" >
-                <div  v-for="projet in projets"  v-if=" projet.id == key"  :key="projet.id">
+                <div  v-for="projet in projets.project"  v-if=" projet.id == key"  :key="projet.id">
               <h3 class="text-primary" style="font-weight:bolder;"> {{ projet.name }}</h3>
               <p class="">{{ projet.description }}</p>
               <h4 class="text-primary">Client</h4>
@@ -137,7 +137,7 @@
                  </tbody>
                 </table>
               <h5 class="mt-5 "><strong> Project files </strong></h5>
-              <div  v-for="file in files" :key="file.id">
+              <div  v-for="file in files.files" :key="file.id">
               <ul class="list-unstyled">
                 <li>
                   <a href="" class="btn-link text-secondary"><a style="text-decoration:none; color:black;"  :href="`//127.0.0.1:8000/upload/${file.file}`" target="_blank">
@@ -174,14 +174,18 @@
                 membres:[],  membre:{   id :'',name:'',role:'', },
                 form : new Form({id:'',body:'',user:'',}),
                  form1 : new Form({id:'',body:'',user:'',}),
-                comments:[],comment:{id:'',body:'',created_at:''},
-                commentsreply:[],
+                comments:{comment:{}},comment:{id:'',body:'',created_at:''},
+                commentsreply:{
+                    commentreply:{}
+                    },
                 commentreply:{
                   id:'',
                   body:'',
                   created_at:''
                 },
-                   files:[],
+                   files:{
+                       files:{}
+                   },
                name: '',
               file:{
                 name:'',
@@ -217,7 +221,7 @@
             },
             afficherProjets(){
             axios.get('/api/getProjects')
-                .then(({data}) => {this.projets=data.data});},
+                .then(({data}) => {this.projets=data});},
             afficherMembre(){
             axios.get('/api/membreid/'+this.key).then(({data})=> {this.membres = data});},
             ajouterCommentaire(){
@@ -233,7 +237,7 @@
             },
 
             afficherComments(){
-            axios.get('/api/comments').then(({data})=> {this.comments =data.data});},
+            axios.get('/api/comments').then(({data})=> {this.comments =data});},
             // afficherComments(){
             //axios.get('/api/commentsreply').then(({data})=> {this.commentsreply =data.data});},
             showbtn(id){
@@ -243,14 +247,14 @@
                 let key = document.getElementById("pm").innerHTML;
                 return key;},
             showreply(){
-             axios.get('/api/commentreply').then(({data})=> {this.commentsreply =data.data});},
+             axios.get('/api/commentreply').then(({data})=> {this.commentsreply =data});},
             },
 
                 created(){
                     fire.$on('ajoutdetail',()=>{
-                 axios.get('/api/file/'+this.key).then(({data}) => {this.files =data.data});
+                 axios.get('/api/file/'+this.key).then(({data}) => {this.files =data});
                     }),
-                    axios.get('/api/file/'+this.key).then(({data}) => {this.files =data.data});
+                    axios.get('/api/file/'+this.key).then(({data}) => {this.files =data});
                     fire.$on('ajoutcommentaire',()=>{
                 this.afficherComments();});
                       fire.$on('ajoutcommentaire',()=>{

@@ -29,10 +29,6 @@ class UserProjetController extends Controller
     {
         return Projet::latest()->paginate(15);
     }
-
-
-
-
     /**
      * Store a newly created resource in storage.
      *
@@ -41,11 +37,12 @@ class UserProjetController extends Controller
      */
     public function store(Request $request)
     {
-
+        $this->validate($request,[
+            'membre' => 'required',
+              ]);
           $data = $request->all();
           $projet = Projet::latest()->orderBy('created_at','DESC')->first();
-
-          foreach($request->membre_id as $id_mem){
+          foreach($request->membre as $id_mem){
           $membre = User::where('id' , $id_mem)->first();
           $userprojet = new ProjetUser;
           $userprojet->user_id = $id_mem;
@@ -53,42 +50,29 @@ class UserProjetController extends Controller
           $userprojet->role=$membre->role;
           $userprojet->projet_id = $projet->id;
           $userprojet->save();
-
           }
-
     }
-
     public function storeChef(Request $request){
-
+        $this->validate($request,[
+            'leader' => 'required',
+              ]);
         $projet = Projet::latest()->orderBy('created_at','DESC')->first();
-
-        $chef = User::where('id' , $request->chefprojet)->first();
+        $chef = User::where('id' , $request->leader)->first();
         $userprojet = new ProjetUser;
-
-
         $userprojet->user_id = $chef->id;
         $userprojet->membre = $chef->name;
         $userprojet->role=$chef->role;
         $userprojet->projet_id = $projet->id;
         $userprojet->save();
-
-
-
-
     }
     public function storeChefparchef(){
-
         $projet = Projet::latest()->orderBy('created_at','DESC')->first();
-
-
         $userprojet = new ProjetUser;
         $userprojet->user_id =auth()->user()->id;
         $userprojet->membre = auth()->user()->name;
         $userprojet->role=auth()->user()->role;
         $userprojet->projet_id = $projet->id;
-
         $userprojet->save();
-
     }
 
     /**
@@ -103,17 +87,11 @@ class UserProjetController extends Controller
         $project = Projet::where(['id'=>$id])->first();
         return response()->json([
 			"membres" => $project->users
-
 		]);
-
     }
-    public function showrole(){
-
-    }
-
     public function Membreprojet()
     {
-        return User::latest()->paginate(100);
+       return User::latest()->paginate(100);
     }
 
 
@@ -124,12 +102,6 @@ class UserProjetController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-        //
-
-    }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -138,17 +110,15 @@ class UserProjetController extends Controller
      */
     public function showt($id){
         $projet=Projet::where(['id'=>$id])->first();
-
-        return   $projet->users;
+        return response()->json([
+        "users" =>    $projet->users
+        ]);
     }
    public function userpro($id){
     $projet = Projet::where(['id'=>$id])->get();
     return $projet->users;
    }
 
-    public function destroy($id)
-    {
-        //
-    }
+
 
 }

@@ -1,5 +1,4 @@
 <template>
-
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12 mt-4" v-if="$acces.Admin()" >
@@ -26,10 +25,10 @@
                   </thead>
                   <tbody>
 
-                    <tr v-for="client in clients" :key="client.id" >
+                    <tr v-for="client in clients.client.data" :key="client.id" >
                        <router-link :to="`/client/${client.id}`" style="text-decoration:none; color:black;"> <td>{{ client.name }}</td></router-link>
                       <td >{{ client.email }}</td>
-                      <td>{{ client.tel }}</td>
+                      <td>{{ client.phone }}</td>
                       <td>{{ client.created_at | date }}</td>
                       <td>
                   <a href="#" class="btn " style="background-color: #00a8cc" @click="editClient(client)" ><i style="color: #fff" class="fas fa-user-edit"></i></a>
@@ -42,6 +41,7 @@
               </div>
               <!-- /.card-body -->
             </div>
+                                    <pagination :data="clients.client" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
          <div v-if="!$acces.Admin()">
@@ -80,9 +80,9 @@
     </div>
      <div class="form-group">
       <label>Phone</label>
-      <input v-model="form.tel" type="text" name="tel"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('tel') }">
-      <has-error :form="form" field="tel"></has-error>
+      <input v-model="form.phone" type="text" name="phone"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('phone') }">
+      <has-error :form="form" field="phone"></has-error>
 
     </div>
 
@@ -107,7 +107,7 @@
             return{
                 x:false,
                 clients:{
-                   projets:''
+                    client:{}
                 },
 
                 form : new Form({
@@ -115,8 +115,9 @@
                 name:'',
                 email:'',
                 password:'',
-                tel:''
+                phone:''
                 }),
+                
                 projets:[],
                 projet:{
                     id:'',
@@ -127,8 +128,9 @@
         },
 
                methods:{
+            
                  deleteClient(id){
-           seww.fire({
+             seww.fire({
             title: 'Are you sure?',
             text: "You will not be able to go back!",
             icon: 'warning',
@@ -136,10 +138,10 @@
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Supprimer!'
+            confirmButtonText: 'Delete!'
             }).then((result) => {
            if(result.value){
-                    this.form.delete('api/membre/' + id).then(function(){
+                    this.form.delete('api/membre/'+id).then(function(){
 
                     seww.fire(
                     'Delete!',
@@ -152,16 +154,21 @@
                 }).catch(()=>{
                     seww.fire(
                     'Failure !!!!'
-
+                  
 
                     );
                 });
            }
                 })
             },
-
+                getResults( page = 1) {
+      		     	axios.get('api/afficheclient?page=' + page)
+				         .then(response => {
+				       this.clients = response.data;
+                    });
+                  },
                    afficherClient(){
-                   axios.get('api/afficheclient').then(({ data }) =>(this.clients = data.data));
+                    axios.get('api/afficheclient').then(({ data }) =>(this.clients = data));
                    },
                ajouterClient(){
                 this.form.post('api/ajouterClient').then(()=>{

@@ -20,8 +20,6 @@
                     <tr>
                       <th>Name</th>
                       <th>Email</th>
-
-
                       <th>Phone</th>
                       <th>Created_at</th>
                       <th>Operation</th>
@@ -29,12 +27,10 @@
                   </thead>
                   <tbody>
 
-                    <tr v-for="user in users" :key="user.id">
+                    <tr v-for="user in users.Chef.data" :key="user.id">
                       <td>{{ user.name }}</td>
                       <td>{{ user.email }}</td>
-
-
-                      <td>{{ user.tel }}</td>
+                      <td>{{ user.phone }}</td>
                       <td>{{ user.created_at | date }}</td>
                       <td >
            <span class="btn" style="background-color: #00a8cc" @click="editMembre(user)">  <i style="color: #fff" class="fas fa-user-edit"  ></i></span>
@@ -50,6 +46,7 @@
               </div>
               <!-- /.card-body -->
             </div>
+             <pagination  :data="users.Chef" @pagination-change-page="getResults" ></pagination>
             </div>
         </div>
 
@@ -91,17 +88,15 @@
 
     <div class="form-group">
       <label>Phone</label>
-      <input v-model="form.tel" type="text" name="tel"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('tel') }">
-      <has-error :form="form" field="tel"></has-error>
-
+      <input v-model="form.phone" type="text" name="phone"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('phone') }">
+      <has-error :form="form" field="phone"></has-error>
     </div>
-
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
          <button type="submit" v-show="!x" class="btn btn-primary" >Add</button>
-        <button type="submit" v-show="x" class="btn btn-primary" >Edit</button>
+        <button type="submit"  v-show="x" class="btn btn-primary" >Edit</button>
       </div>
     </div>
   </div>
@@ -117,22 +112,30 @@
         data(){
             return{
                  x:false,
-                users:{},
+                users:{
+                  Chef:{}
+                },
                 form : new Form({
                 id:'',
                 name:'',
                 email:'',
                 password:'',
+                phone:'',
                 role:'',
-                tel:''
+                
                 })
             }
         },
 
                methods:{
-
-                   afficherMembre(){
-                   axios.get('api/chef').then(({ data }) =>(this.users = data.data));
+             getResults(page = 1) {
+      			axios.get('api/chefwP?page=' + page)
+				.then(response => {
+				this.users = response.data;
+                });
+           },
+               afficherMembre(){
+                   axios.get('api/chefwP').then(({ data }) =>(this.users = data));
                    },
                ajouterMembre(){
                 this.form.post('api/ajouterChefDeProjet').then(()=>{
@@ -146,11 +149,9 @@
                 });
                 },
                 misajour(){
-
+               
                this.form.put('api/membre/'+ this.form.id).then(function(){
-
-             $('#AjouterMembre').modal('hide')
-
+                $('#AjouterMembre').modal('hide')
                     seww.fire(
                     'Edit!',
                     'Your User has been Updated.',
@@ -170,7 +171,6 @@
               newer(){
                   this.x=false
                   this.form.reset();
-
            $("#AjouterMembre").modal('show')
               },
                 supprimerMembre(id){
@@ -178,15 +178,13 @@
             title: 'Are you sure?',
             text: "You will not be able to go back!",
             icon: 'warning',
-
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Supprimer!'
             }).then((result) => {
            if(result.value){
-                    this.form.delete('api/membre/' + id).then(function(){
-
+                    this.form.delete('api/membre/'+id).then(function(){
                     seww.fire(
                     'Delete!',
                     'member deleted.',
@@ -196,18 +194,14 @@
                 }).catch(()=>{
                     seww.fire(
                     'Failure !!!!'
-
-
                     );
                 });
            }
                 })
             }
-
              },
              created(){
                  this.afficherMembre();
-
                   fire.$on('ajoutmembre',()=>{
                      this.afficherMembre();
                  });
@@ -215,9 +209,7 @@
 
     }
 </script>
-
 <style scope="">
-
 .card-title{
  font-size: 25px;
 }

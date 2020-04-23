@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\API;
-
-
+//use App\Http\Controllers\Controller;
 use App\Projet;
 use App\User;
 use App\ProjetUser;
@@ -14,9 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\NewProject;
 use App\Notifications\NewProjectNotification;
-
 use DB;
-
 class ProjetController extends Controller
 {
    public function __construct()
@@ -30,8 +27,10 @@ class ProjetController extends Controller
      */
     public function index()
     {
-        return Projet::latest()->paginate(10);
-
+        $projects= Projet::latest()->paginate(8);
+        return response()->json([
+            "projets"=> $projects
+        ]);
     }
 
 
@@ -47,26 +46,24 @@ class ProjetController extends Controller
 
      public function store(Request $request)
     {
-        //
-
-
         $this->validate($request,[
 
             'name' => 'required|string|max:50',
-            'durre' =>  'required|string|max:50',
+            'duration' =>  'required|string|max:50',
             'description'=>'required|string|max:5000',
-            'client_id' => 'required',
+            'client' => 'required',    
             'budget' => 'required',
+            
               ]);
 
 
-          $data = $request->all();
-           $client = User::where('id', $data['client_id'])->first();
-           $projet =new Projet;
+            $data = $request->all();
+            $client = User::where('id', $data['client'])->first();
+            $projet =new Projet;
             $projet->name = $data['name'];
-            $projet->durre = $data['durre'];
+            $projet->duration = $data['duration'];
             $projet->description = $data['description'];
-            $projet->client_id = $data['client_id'];
+            $projet->client_id = $data['client'];
             $projet->owner = $client->name;
             $projet->budget = $data['budget'];
             $projet->save();
@@ -80,26 +77,23 @@ class ProjetController extends Controller
     Notification::send( $chef,new NewProjectNotification ($data));
          $when = now()->addSeconds(10);
     Notification::send( $chef,(new NewProject ($data))->delay($when));
-       }
+    return response()->json([
+        "action"=> "project created"
+    ],200);
+}
+
 
 
 
 
     public function getProjects()
     {
-      return Projet::latest()->paginate(15);
-
+      $project= Projet::all();
+      return response()->json([
+        "project"=>$project
+    ]);
     }
-    public function getid(){
-        $clients=User::where('role','client')->get();
-        $projets =Projet::where(['client_id' => $clients->id])->get();
-        foreach($projets as $projet){
-            foreach($clients as $client){
-          $projet->owner=$client->name;
-        }
-    }
-
-    }
+    
 
     /**
      * Display the specified resource.
@@ -107,10 +101,7 @@ class ProjetController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
-    }
+
 
     /**
      * Update the specified resource in storage.
@@ -123,49 +114,43 @@ class ProjetController extends Controller
     {   $data =$request->all();
         $this->validate($request,[
 
-            'name' => '|string|max:50',
-            'durre' =>  '|string|max:50',
-            'description'=>'|string|max:50000',
-            'client_id' => '',
-            'budget' => '',
-
+            'name' => 'string|max:50',
+            'duration' =>  'string|max:50',
+            'description'=>'string|max:50000',
+            'client' => 'required',
+            'budget' => 'required',
          ]);
-
-        //
-
-
-       $client = User::where('id', $data['client_id'])->first();
-
-        DB::table('projets')->where('id',$id)->update(['name'=>$data['name'],'durre'=>$data['durre'],'description'=>$data['description'],'owner'=>$client->name,'client_id'=>$data['client_id'],'budget'=>$data['budget']]);
-
-        $chef = User::where('id' , $request->chefprojet)->first();
-      //  DB::table('user_projet')->update(['user_id'=>$chef->id,'membre'=>$chef->name,'role'=>$chef->role]);
+         
+       $client = User::where('id', $data['client'])->first();
+        DB::table('projets')->where('id',$id)->update(['name'=>$data['name'],'duration'=>$data['duration'],'description'=>$data['description'],'owner'=>$client->name,'client_id'=>$data['client'],'budget'=>$data['budget']]);
+        $chef = User::where('id' , $request->leader)->first();
+        return response()->json([
+        "action"=> "updated"
+        ]);
 
 
-    }
+       }
 
     public function updateparchef(Request $request, $id)
     {
-
-
         $data =$request->all();
-
-
         $client = Client::where('id', $data['client_id'])->first();
-
-        DB::table('projets')->where('id',$id)->update(['name'=>$data['name'],'durre'=>$data['durre'],'description'=>$data['description'],'owner'=>$client->name,'client_id'=>$data['client_id'],'budget'=>$data['budget']]);
-
-
-
+        DB::table('projets')->where('id',$id)->update(['name'=>$data['name'],'duration'=>$data['duration'],'description'=>$data['description'],'owner'=>$client->name,'client'=>$data['client'],'budget'=>$data['budget']]);
+         return response()->json([
+            "action"=> "updated"
+        ]);
+        return response()->json([
+            "action "=>"update"
+        ]);
     }
-
-    //
-
     public function role(Request $request){
         $data =$request->all();
         $role =new Role;
         $role->role=$data['role'];
         $role->save();
+        return response()->json([
+            "action"=> "role created"
+        ]);
     }
     public function getrole(Request $request){
         return Role::latest()->paginate(100);
@@ -178,15 +163,16 @@ class ProjetController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        //
+    {   //
         $projet=Projet::find($id);
         $projet->delete();
-        return ["result" => "Projet Deleted"];
+     
+        return response()->json([
+            "action"=> "project deleted"
+        ]);
     }
     public function getProjectsUserConnecte(){
          $user=Auth::user();
-
         return $user->projets;
     }
 }

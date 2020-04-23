@@ -32,7 +32,7 @@
             <div class="card card-primary card-outline"  >
               <div class="card-body box-profile">
                 <div class="text-center">
-                  <img class="profile-user-img img-fluid img-circle" :src="`/img/profile/${ user.photo }`"   alt="User profile picture" > 
+                  <img class="profile-user-img img-fluid img-circle" :src="`/img/profile/${ user.photo }`"   alt="User profile picture" >
                 </div>
                   <h3 class="profile-username text-center">{{ user.name }}</h3>
 
@@ -178,7 +178,8 @@
                           <button   @click.prevent="updateInfo"  type="submit" class="btn btn-danger">Submit</button>
                         </div>
                       </div>
-                    </form></div>
+                    </form>
+                    </div>
 
                   </div>
                   <!-- /.tab-pane -->
@@ -197,7 +198,7 @@
 
             </div>
         </div>
-    
+
 </div>
 
 </template>

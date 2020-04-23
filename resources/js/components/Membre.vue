@@ -6,11 +6,8 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Membres:</h3>
-
                 <div class="card-tools" v-if="$acces.Admin()">
-
- <button class="btn btn-success ml-6 mb-3"  @click="newer()"><i class="fas fa-user"></i> Add </button>
-
+                  <button class="btn btn-success ml-6 mb-3"  @click="newer()"><i class="fas fa-user"></i> Add </button>
                 </div>
               </div>
               <!-- /.card-header -->
@@ -20,21 +17,18 @@
                     <tr>
                       <th>Name</th>
                       <th>Email</th>
-
                       <th>Role</th>
                       <th>Phone</th>
-                      <th>Created_at</th>
-                     
+                      <th>Created_at</th>    
                     </tr>
                   </thead>
                   <tbody>
 
-                    <tr v-for="user in users" :key="user.id">
+                    <tr v-for="user in users.user.data" :key="user.id">
                       <td>{{ user.name }}</td>
                       <td>{{ user.email }}</td>
-
                       <td>{{ user.role }}</td>
-                      <td>{{ user.tel }}</td>
+                      <td>{{ user.phone }}</td>
                       <td>{{ user.created_at | date }}</td>
                       <td v-if="$acces.Admin()">
                             <a href="#" class="btn" style="background-color: #00a8cc" @click="editMembre(user)"><i style="color:#fff;" class="fas fa-user-edit"></i></a>
@@ -47,6 +41,7 @@
               </div>
               <!-- /.card-body -->
             </div>
+                        <pagination :data="users.user" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
         <!-- Modal -->
@@ -94,9 +89,9 @@
     </div>
     <div class="form-group">
       <label>Phone</label>
-      <input v-model="form.tel" type="text" name="tel"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('tel') }">
-      <has-error :form="form" field="tel"></has-error>
+      <input v-model="form.phone" type="text" name="phone"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('phone') }">
+      <has-error :form="form" field="phone"></has-error>
 
     </div>
 
@@ -120,58 +115,55 @@
         data(){
             return{
                  x:false,
-                users:{},
+                users:{
+                  user:{}
+                },
                 roles:{},
                 role:{
                     id:'',
                   role:''
                 },
-
                 form : new Form({
                 id:'',
                 name:'',
                 email:'',
                 password:'',
                 role:'',
-                tel:''
+                phone:''
                 })
             }
         },
-
                methods:{
-
+             getResults( page = 1) {
+      			axios.get('api/membre?page=' + page)
+				         .then(response => {
+				       this.users = response.data;
+                    });
+                    },
                    afficherMembre(){
-                   axios.get('api/membre').then(({ data }) =>(this.users = data.data));
+                   axios.get('api/membre').then(({ data }) => (this.users = data));
                    },
                ajouterMembre(){
                 this.form.post('api/membre').then(()=>{
                 fire.$emit('ajoutmembre');
                 $("#AjouterMembre").modal('hide');
-
                 Toast.fire({
                         icon: 'success',
                         title: 'Membre Added'
                         })
-
                 }).catch(()=>{
-
                 });
                 },
                 misajour(){
-
                this.form.put('api/membre/'+ this.form.id).then(function(){
-
              $('#AjouterMembre').modal('hide')
-
                     seww.fire(
                     'Edit!',
                     'Your User has been Updated.',
                     'success'
                     )
                     fire.$emit('ajoutmembre');
-
              }).catch(function(){
-
              })
             },
               editMembre(user){
@@ -182,7 +174,6 @@
               newer(){
                   this.x=false
                   this.form.reset();
-
            $("#AjouterMembre").modal('show')
               },
                 supprimerMembre(id){
@@ -217,7 +208,7 @@
             },
                   getRole(){
                       axios.get('/api/role').then(({data})=>{
-                this.roles = data.data;
+                     this.roles = data.data;
                       });
                   }
              },

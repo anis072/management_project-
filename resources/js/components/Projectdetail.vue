@@ -78,7 +78,7 @@
                             <form @submit.prevent="ajouterCommentaire()">
                             <div class="input-group input-group-sm mb-0">
                             <input class="form-control form-control-sm" v-model="form.body" type="text" name="body"
-                            :class="{ 'is-invalid': form.errors.has('body') }"  placeholder="commenter.." style="width:450px;">
+                            :class="{ 'is-invalid': form.errors.has('body') }"  placeholder="comment.." style="width:450px;" required>
                             <has-error :form="form" field="body"></has-error>
                                     <div class="input-group-append">
                                             <button type="submit" class="btn btn-success " >Comment</button>

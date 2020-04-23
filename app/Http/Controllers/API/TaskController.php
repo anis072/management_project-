@@ -41,9 +41,7 @@ class TaskController extends Controller
 		]);
 
 	}
-   public function warning(){
-//	return auth()->user()->tasks;
-   }
+
 	public function update($id, Request $request){
 
 		$task = Task::find($id);
@@ -99,9 +97,9 @@ class TaskController extends Controller
 		]);
     }
     public function getTask(){
-      return $task = Task::orderBy('sortorder')->latest()->paginate(15);
+       $task = Task::orderBy('sortorder')->latest()->paginate(15);
       return response()->json([
-        "Tasks"=> $task
+        "Tasks" => $task
     ]);
     }
     public function assign($id,$membre){
@@ -132,10 +130,11 @@ class TaskController extends Controller
         }
         return $hasparent;
     }
-    public function user(){
-     $task =new Task;
-     $users = User::where(['id'=>$id]);
-     return $users;
+    public function showmembre(){
+        $users = User::all();
+        return response()->json([
+            "users"=>$users
+        ]);
+       }
 
-    }
 }
