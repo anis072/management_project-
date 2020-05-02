@@ -31,8 +31,7 @@
 
                     <tr  v-for="task in tasks.Tasks.data "  v-if=" task.projet_id == key "   :key="task.id">
                      <router-link :to="`/taskdetail/${task.id}`"   style="text-decoration:none; color:black;">   <td >{{ task.text }}</td></router-link>
-                      <td >{{ parseInt(100 * task.progress) }}% <img :src="`/img/icon/verif.png.png`" style="width:15px;" v-if="`${parseInt(100 * task.progress)}`==100" > </img> <div class="progress">
-
+                      <td >{{ parseInt(100 * task.progress) }}% <img :src="`/img/icon/verif.png`" style="width:15px;" v-if="`${parseInt(100 * task.progress)}`==100" > </img> <div class="progress">
                               <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0"   id="progress" v-model="form.progress"
                              aria-valuemin="`${parseInt(100 * task.progress)}`" :style=" {'width':`${parseInt(100 * task.progress)}%`}" aria-valuemax="100"></div>
                              </div>
@@ -151,21 +150,18 @@
                 }).catch(()=>{
 
                 });
-
-
             },
            tree(){
                var toggler = document.getElementsByClassName("caret");
-var i;
+                var i;
 
-for (i = 0; i < toggler.length; i++) {
-  toggler[i].addEventListener("click", function() {
-    this.parentElement.querySelector(".nested").classList.toggle("active");
-    this.classList.toggle("caret-down");
-  });
-}
+            for (i = 0; i < toggler.length; i++) {
+              toggler[i].addEventListener("click", function() {
+                this.parentElement.querySelector(".nested").classList.toggle("active");
+                this.classList.toggle("caret-down");
+              });
+            }
            }
-
 
              },
              created(){

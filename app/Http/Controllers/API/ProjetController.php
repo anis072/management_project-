@@ -32,9 +32,6 @@ class ProjetController extends Controller
             "projets"=> $projects
         ]);
     }
-
-
-
     /**
      * Store a newly created resource in storage.
      *
@@ -51,9 +48,9 @@ class ProjetController extends Controller
             'name' => 'required|string|max:50',
             'duration' =>  'required|string|max:50',
             'description'=>'required|string|max:5000',
-            'client' => 'required',    
+            'client' => 'required',
             'budget' => 'required',
-            
+
               ]);
 
 
@@ -67,7 +64,7 @@ class ProjetController extends Controller
             $projet->owner = $client->name;
             $projet->budget = $data['budget'];
             $projet->save();
-          $ids=[$request->membre_id,$request->chefprojet];
+            $ids=[$request->membre,$request->leader];
            $chef = User::whereIn('id' , $ids)->get();
       $data = array(
      'projet' => $projet->name,
@@ -81,11 +78,6 @@ class ProjetController extends Controller
         "action"=> "project created"
     ],200);
 }
-
-
-
-
-
     public function getProjects()
     {
       $project= Projet::all();
@@ -93,7 +85,7 @@ class ProjetController extends Controller
         "project"=>$project
     ]);
     }
-    
+
 
     /**
      * Display the specified resource.
@@ -120,7 +112,7 @@ class ProjetController extends Controller
             'client' => 'required',
             'budget' => 'required',
          ]);
-         
+
        $client = User::where('id', $data['client'])->first();
         DB::table('projets')->where('id',$id)->update(['name'=>$data['name'],'duration'=>$data['duration'],'description'=>$data['description'],'owner'=>$client->name,'client_id'=>$data['client'],'budget'=>$data['budget']]);
         $chef = User::where('id' , $request->leader)->first();
@@ -166,7 +158,7 @@ class ProjetController extends Controller
     {   //
         $projet=Projet::find($id);
         $projet->delete();
-     
+
         return response()->json([
             "action"=> "project deleted"
         ]);
@@ -175,4 +167,5 @@ class ProjetController extends Controller
          $user=Auth::user();
         return $user->projets;
     }
+
 }

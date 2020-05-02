@@ -1,5 +1,7 @@
 <?php
 namespace App\Http\Controllers\API;
+
+use App\Filee;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Reclamation;
@@ -31,32 +33,40 @@ class ReclamationController extends Controller
     {  $user= Auth()->user();
         if ($user->role === 'admin')
         {
-         $complain= Reclamation::latest()->paginate(5);
+         $complain= Reclamation::latest()->paginate(8);
         return response()->json([
            "complain"=>$complain
         ]);
         }
       else  if ($user->role === 'client')
         {
-            $complain= Reclamation::where('client_id',Auth()->id())->latest()->paginate();
+            $complain= Reclamation::where('client_id',Auth()->id())->latest()->paginate(5);
             return response()->json([
                 "complain"=>$complain
              ]);
         }
      else if ($user->role === 'chef de projet')
         {
-            $complain= Reclamation::where('chef_id',Auth()->id())->latest()->paginate();
+            $complain= Reclamation::where('chef_id',Auth()->id())->latest()->paginate(8);
             return response()->json([
                 "complain"=>$complain
              ]);
         }
         else {
-            $complain=Reclamation::where('employe_id',Auth()->id())->latest()->paginate();
+            $complain=Reclamation::where('employe_id',Auth()->id())->latest()->paginate(8);
             return response()->json([
                 "complain"=>$complain
              ]);
         }
     }
+    public function complaints(){
+        $complain= Reclamation::all();
+        return response()->json([
+           "complain"=>$complain
+        ]);
+        }
+
+
   public function  projets(){
     $project= Projet::where('client_id',Auth()->id())->get();
     return response()->json([
@@ -72,12 +82,13 @@ class ReclamationController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'type' =>  'required',
-            'description'=>'required|string|max:550',
-            'project' => 'required',
-      //      'file' => 'required|mimes:doc,docx,pdf,txt|max:2048'
+
+            'type' => 'required',
+            'description' =>  'required|string|max:5000',
+             'project'=>'required'
 
               ]);
+
           $data = $request->all();
           $projet=Projet::where('id',$data['project'])->first();
           $userprojet= ProjetUser::where('projet_id',$data['project'])->where('role','chef de projet')->first();
@@ -92,16 +103,7 @@ class ReclamationController extends Controller
           $reclamation->chef_id=$userprojet->user_id;
           $reclamation->nameClient=$client->name;
           $reclamation->progress=25;
-       //   $extention = time().'.'.$request->file->getClientOriginalExtension();
-        //  $fileName =$request->name.'.'.$extention;
-         // $request->file->move(public_path('upload'), $fileName);
-        //  $reclamation->file= $fileName;
           $reclamation->save();
-
-
-
-         // $reclamation->save();
-
           $user = User::find($userprojet->user_id);
           $data = array(
            'type' => $reclamation->type,
@@ -114,6 +116,27 @@ class ReclamationController extends Controller
           return response()->json([
             "action"=>"Complain Added"
           ]);
+    }
+    public function complaintsfile(Request $request){
+        $reclamation = Reclamation::latest('updated_at')->first();
+        $file = new Filee;
+        if(!$request->hasFile('file')){
+        return response()->json([
+            "action"=>"File empty"
+        ]);
+        }
+        else{
+            $this->validate($request,[
+             'file' => 'required|mimes:doc,png,jpg,docx,txt|max:2048'
+              ]);
+        $extention = time().'.'.$request->file->getClientOriginalExtension();
+        $fileName ="complain".'.'.$extention;
+        $request->file->move(public_path('upload'), $fileName);
+        $file->file= $fileName;
+        $file->rec_id=$reclamation->id;
+        $file->save();
+        }
+
     }
     /**
      * Display the specified resource.
@@ -131,7 +154,7 @@ class ReclamationController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $data=$request->all();
+      $data=$request->all();
      $reclamation = Reclamation::where('id',$id)->first();
      $reclamation->avancement= $data['etat'];
      if ($data['etat'] == 'In progress'){
@@ -154,6 +177,7 @@ class ReclamationController extends Controller
         "action"=>"Complain Updated"
       ]);
     }
+
     /**
      * Remove the specified resource from storage.
      *
@@ -191,7 +215,7 @@ class ReclamationController extends Controller
                 "type"=>$type
             ]);
         }
-        public function terminerReclamation($id){
+     public function terminerReclamation($id){
      $reclamation = Reclamation::where('id',$id)->first();
      $reclamation->avancement= "Finished" ;
      $reclamation->progress= 100;

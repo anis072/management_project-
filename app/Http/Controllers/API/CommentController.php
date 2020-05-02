@@ -124,8 +124,10 @@ public function showreply(){
  }
  public function showt(){
     // $commentaire =Commentaire::user()->name;
-     return  Commentaire::where('commentable_type','App\Task')->latest()->paginate(100);
-
+      $comment= Commentaire::where('commentable_type','App\Task')->get();
+     return response()->json([
+        "comment"=>$comment
+    ]);
  }
 
 }

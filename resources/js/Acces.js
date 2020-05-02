@@ -15,6 +15,9 @@ export default class  Acces {
         return this.user.role === "client";
     }
     adminchef(){
-        return this.user.role === "admin" || this.user.role === "chef de projet"; 
+        return this.user.role === "admin" || this.user.role === "chef de projet";
+    }
+    chefUser(){
+        return this.user.role !== "admin" || this.user.role === "chef de projet" || this.user.role !== "client"
     }
 };

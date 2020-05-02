@@ -19,6 +19,12 @@ class FileController extends Controller
      return   Filee::where('task_id',$id)->latest()->paginate(100);
     //  return response()->json(['files'=>$files]);
   }
+  public function complaintsfile($id){
+    $files= Filee::where('rec_id',$id)->get();
+    return response()->json([
+        'files'=>$files
+        ]);
+  }
       public function formSubmit(Request $request,$id)
   {
       $this->validate($request,[
@@ -37,7 +43,7 @@ class FileController extends Controller
   public function formSubmitt(Request $request,$id)
   {
       $this->validate($request,[
-        'file' => 'required|mimes:doc,docx,pdf,txt|max:2048'
+        'file' => 'required|mimes:doc,png,jpg,docx,pdf,txt|max:2048'
 
       ]) ;
       $extention= time().'.'.$request->file->getClientOriginalExtension();

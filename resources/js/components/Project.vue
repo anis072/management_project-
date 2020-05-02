@@ -27,16 +27,18 @@
                   </thead>
                   <tbody>
                    <tr v-for="projet in projets.projets.data" :key="projet.id" >
-            <td scope="row"> <router-link :to="`/detail/${projet.id}`" style="text-decoration:none; color:black;">{{ projet.name }}</router-link></td>
-
+                 <td scope="row"> <router-link :to="`/detail/${projet.id}`" style="text-decoration:none; color:black;">{{ projet.name }}</router-link></td>
                       <td>
                        {{ projet.owner }}
                        </td>
-
                       <td><a  style=""  href="#" @click="chargerid(projet.description)" class="btn btn-secondary" data-toggle="modal" data-target="#description"><i class="fas fa-sticky-note"></i></a></td>
                       <td>{{ projet.duration }}</td>
                       <td>{{projet.budget}}</td>
-                      <td>-------</td>
+                       <td >{{ parseInt(projet.progress) }}% <img :src="`/img/icon/verif.png`" style="width:15px;" v-if="`${parseInt(projet.progress)}`==100" > </img> <div class="progress">
+                              <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0"   id="progress" v-model="form.progress"
+                             aria-valuemin="`${parseInt(projet.progress)}`" :style=" {'width':`${parseInt(projet.progress)}%`}" aria-valuemax="100"></div>
+                             </div>
+                        </td>
                       <td><a href="#" class="btn" style="background-color: #00a8cc" @click="editProjet(projet)" ><i style="color:#fff" class="fas fa-user-edit"></i></a>
                        <a href="#" class="btn btn-danger" @click="deleteProjet(projet.id)" ><i class="fas fa-trash-alt"></i></a>
                      </td>
@@ -224,7 +226,7 @@
 
          created(){
           //   axios.get('api/getc');
-
+    axios.get('api/progress').then(({ data }) =>(this.progress = data.data));
       this.afficherClient();
       this.afficherMembres();
       this.afficherProjet();
@@ -245,8 +247,10 @@
                    axios.get('/api/projet').then(({ data }) =>(this.projets = data));
                 },
                ajouterProjet(){
+                     this.$Progress.start()
                 this.form.post("api/projet").then(()=>this.form.post('api/chefdeprojet').then(()=>this.form.post('api/userprojet').then(()=>{
                 fire.$emit('ajoutprojet');
+                this.$Progress.finish()
                 this.form.reset();
                 $("#AjouterProjet").modal('hide');
                 Toast.fire({

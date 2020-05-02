@@ -20,23 +20,15 @@
                    <input id="name" class="form-control" type="text" name="name"></input>
                  <div class="input-group mt-2"><div class="custom-file"><input type="file" name="file" v-on:change="onFileChange" class="custom-file-input"> <label for="exampleInputFile" class="custom-file-label">
                      Choose file:</label></div></div>
-
                       <button  class="btn btn-success mt-2">Submit</button>
-
                </form>
-
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-
-
       </div>
     </div>
   </div>
 </div>
-
-
-
         </div>
         <div class="card-body" >
           <div class="row"  v-for="projet in projets.project"  v-if=" projet.id == key"  :key="projet.id">
@@ -62,14 +54,11 @@
                   <div class="info-box bg-light">
                     <div class="info-box-content">
                       <span class="info-box-text text-center "> Duration</span>
-                      <span class="info-box-number text-center  mb-0">{{ projet.durre }} <span>
+                      <span class="info-box-number text-center  mb-0">{{ projet.duration }} <span>
                     </span></span></div>
                   </div>
                 </div>
               </div>
-
-
-
               <div class="row">
                 <div class="col-12">
                   <h4>Comments:</h4>
@@ -136,7 +125,8 @@
                    </tr>
                  </tbody>
                 </table>
-              <h5 class="mt-5 "><strong> Project files </strong></h5>
+                <form @submit="formSubmit" enctype="multipart/form-data">
+              <h5 class="mt-5 "><strong> Project files </strong><button type="submit"  class="btn btn-sm btn-primary">Add files</button></h5>
               <div  v-for="file in files.files" :key="file.id">
               <ul class="list-unstyled">
                 <li>
@@ -145,10 +135,14 @@
                 </li>
               </ul>
               </div>
-              <div class="text-center mt-5 mb-3">
-                <a href="#"  data-toggle="modal" data-target="#exampleModal" class="btn btn-sm btn-primary">Add files</a>
 
-              </div>
+                <div class="inline-block" id="upload">
+                <button class="btn" id="btn" >Upload a file</button>
+                <input type="file" name="file" v-on:change="onFileChange"/>
+                </div>
+            <div v-if="errors && errors.file" class="text-danger">{{ errors.file[0] }}</div>
+                 </form>
+               </div>
             </div>
           </div>
         </div>
@@ -161,13 +155,14 @@
 
 <script>
   export default {
-            data(){  return{
+            data(){
+                return{
                 key: this.$route.params.id,
                 projets:[],
                 projet:{
                 id:'',
                 name:'',
-                durre:'',
+                duration:'',
                 description:'',
                 budget:'',
                 owner:'',},
@@ -186,6 +181,7 @@
                    files:{
                        files:{}
                    },
+                   errors:{},
                name: '',
               file:{
                 name:'',
@@ -212,11 +208,12 @@
                 axios.post('/api/formSubmit/'+this.key, formData, config)
                 .then(function (response) {
                     fire.$emit('ajoutdetail');
-                    $("#exampleModal").modal('hide');
                     currentObj.success = response.data.success;
                 })
-                .catch(function (error) {
-                    currentObj.output = error;
+                .catch((error)=> {
+                     if (error.response.status === 422 || error.response.status === 413) {
+                   this.errors = error.response.data.errors || {};
+        }
                 });
             },
             afficherProjets(){
@@ -289,4 +286,30 @@
    color :#007bff;
    font-weight: bolder;
 }
+
+#upload {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+#btn {
+  border: 2px solid #007bff;
+  color: #007bff;
+  background-color: white;
+  padding: 8px 8px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+#upload input[type=file] {
+  font-size: 40px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
 </style>
+
+

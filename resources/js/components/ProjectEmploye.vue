@@ -7,7 +7,7 @@
             <h3 class="card-title"> Projects:</h3>
 
             <div class="card-tools" v-if="$acces.Chef()">
-   <button class="btn btn-success ml-6 mb-3"  @click="newer" ><i class="fas fa-project-diagram"></i> Add</button>
+              <button class="btn btn-success ml-6 mb-3"  @click="newer" ><i class="fas fa-project-diagram"></i> Add</button>
               <div class="input-group input-group-sm" style="width: 150px;"></div>
             </div>
           </div>
@@ -18,7 +18,6 @@
                 <tr>
                   <th>Nom</th>
                   <th>Client</th>
-
                   <th>Duration</th>
                   <th>Avancemant</th>
                   <th>Description</th>
@@ -36,10 +35,13 @@
                   </router-link>
                   <td>{{ projet.owner }}</td>
 
-                  <td>{{ projet.durre }}</td>
+                  <td>{{ projet.duration }}</td>
 
-                  <td>-------</td>
-
+                   <td >{{ parseInt(projet.progress) }}% <img :src="`/img/icon/verif.png`" style="width:15px;" v-if="`${parseInt(projet.progress)}`==100" > </img> <div class="progress">
+                              <div class="progress-bar bg-success" role="progressbar" aria-valuenow="0"   id="progress" v-model="form.progress"
+                             aria-valuemin="`${parseInt(projet.progress)}`" :style=" {'width':`${parseInt(projet.progress)}%`}" aria-valuemax="100"></div>
+                             </div>
+                        </td>
                      <td ><a  style=""  href="#" class="btn btn-secondary" data-toggle="modal" data-target="#description" @click="chargerid(projet.description)"><i  class="fas fa-sticky-note"></i></a></td>
 
 
@@ -103,30 +105,30 @@
          <div class="form-group">
       <label>Client</label>
 
-      <select v-model="form.client_id"   type="text" name="client_id"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('client_id') } "   >
+      <select v-model="form.client"   type="text" name="client"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('client') } "   >
         <option value="" disabled selected> Select Client </option>
-        <option v-for = "(client , index) in clients" :key="index" v-bind:value="client.id">{{ client.name }}</option>
+        <option v-for = "(client , index) in clients.client" :key="index" v-bind:value="client.id">{{ client.name }}</option>
       </select>
-      <has-error :form="form" field="client_id"></has-error>
+      <has-error :form="form" field="client"></has-error>
     </div>
 
     <div v-show="!x">
               <label>Membres</label>
-                <select   v-model="form.membre_id" type="text" name="membre_id[]" class="form-control" :class="{ 'is-invalid': form.errors.has('membre_id') } " multiple="multiple">
+                <select   v-model="form.membre" type="text" name="membre[]" class="form-control" :class="{ 'is-invalid': form.errors.has('membre') } " multiple="multiple">
                   <option value="" disabled selected>Select membres</option>
-                  <option v-for="(membre , index) in membres" :key="index" v-bind:value="membre.id">
+                  <option v-for="(membre , index) in membres.User" :key="index" v-bind:value="membre.id">
                         {{ membre.name }}
                   </option>
                 </select>
-                <has-error :form="form" field="membre_id"></has-error>
+                <has-error :form="form" field="membre"></has-error>
      </div>
 
      <div class="form-group" >
       <label>Duration</label>
-      <input v-model="form.durre" type="text" name="durre"
-        class="form-control" :class="{ 'is-invalid': form.errors.has('durre') } ">
-      <has-error :form="form" field="durre"></has-error>
+      <input v-model="form.duration" type="text" name="duration"
+        class="form-control" :class="{ 'is-invalid': form.errors.has('duration') } ">
+      <has-error :form="form" field="duration"></has-error>
     </div>
 
      <div class="form-group">
@@ -161,19 +163,19 @@
 <script>
 export default {
   data() {
-    return {  
+    return {
        x:false,
        desc:'',
           form : new Form({
            id:'',
            name:'',
-           durre:'',
+           duration:'',
            description:'',
            budget:'',
            owner:'',
            membres: "",
-          client_id:"",
-        membre_id: []
+          client:"",
+        membre: []
 
        }),
 
@@ -304,12 +306,12 @@ export default {
            $("#AjouterProjet").modal('show')
               },
                afficherClient(){
-                   axios.get('api/clientp').then(({data})=>(this.clients =data.data));
+                   axios.get('api/clientp').then(({data})=>(this.clients =data));
 
                },
 
                     afficherMembres() {
-                axios.get("api/membrep").then(({ data }) => (this.membres = data.data));
+                axios.get("api/membrep").then(({ data }) => (this.membres = data));
                        },
                         chargerid($description){
                      this.desc=$description;

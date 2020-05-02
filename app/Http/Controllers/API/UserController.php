@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -22,7 +21,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $user = User::where('role','<>','chef de projet')->where('role','<>','admin')->where('role','<>','client')->latest()->paginate(2);
+        $user = User::where('role','<>','chef de projet')->where('role','<>','admin')->where('role','<>','client')->latest()->paginate(8);
         return response()->json([
         "user" => $user
         ]);
@@ -89,7 +88,7 @@ class UserController extends Controller
 
           }
           public function client(){
-            $client=User::where('role','client')->latest()->paginate(3);
+            $client=User::where('role','client')->latest()->paginate(8);
             return response()->json([
                 "client"=>$client
             ]);
@@ -118,20 +117,19 @@ class UserController extends Controller
             'phone' => 'required',
             'role' => 'required'
              ]);
-             return User::create([
-                'name' => $request->name,
-                'email'=> $request->email,
-                'password'=> bcrypt($request->password),
-                'phone'=> $request->phone,
-                'role'=> $request->role,
-
-            ]);
              $data = array(
                 'login'    => $request->email,
                 'password' => $request->password,
                 'role'  => $request->role
             );
             Mail::to($request->email)->send(new loginMail($data));
+             return User::create([
+                'name' => $request->name,
+                'email'=> $request->email,
+                'password'=> bcrypt($request->password),
+                'phone'=> $request->phone,
+                'role'=> $request->role,
+            ]);
           return response()->json([
               "action"=>"membre aded"
           ]);

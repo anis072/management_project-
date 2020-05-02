@@ -82,6 +82,7 @@ Route::put('link/{id}','API\LinkController@update');
 Route::delete('link/{id}','API\LinkController@destroy');
 //Route::re}source('link', 'API\LinkController');
 Route::get('/tasks','API\TaskController@getTask');
+Route::get('/tasksdetail','API\TaskController@getTaskt');
 //Task
 Route::post('/taskassign/{id}/{membre}','API\TaskController@assign');
 Route::get('/userTask','API\TaskController@user');
@@ -92,6 +93,9 @@ Route::get('membretask','API\TaskController@showmembre');
 
 //reclamation
 Route::resource('reclamation','API\ReclamationController');
+Route::get('/complain','API\ReclamationController@complaints');
+Route::post('/complainfile','API\ReclamationController@complaintsfile');
+Route::get('/filesComplain/{id}','API\FileController@complaintsfile');
 Route::get('/projetRec','API\ReclamationController@projets');
 Route::post('/reclamationassign/{id}/{membre}','API\ReclamationController@assign');
 Route::post('/type' ,'API\ReclamationController@type');
@@ -109,7 +113,15 @@ Route::post('formSubmit/{id}','API\FileController@formSubmit');
 Route::get('/filet/{id}','API\FileController@filest');
 Route::post('formSubmitt/{id}','API\FileController@formSubmitt');
 Route::post('formSubmitR','API\FileController@formSubmitR');
-
-
+//stata
+Route::get('/Nprojects','API\StatController@Nprojects');
+Route::get('/Nclients','API\StatController@Nclients');
+Route::get('/Nusers','API\StatController@Nusers');
+Route::get('/Nleaders','API\StatController@Nleaders');
+Route::get('/stats','API\StatController@stats');
+Route::get('/Uprojects','API\StatController@Uprojects');
+Route::get('/Ustats','API\StatController@Ustats');
+Route::get('/Utasks','API\StatController@Utasks');
+Route::get('/Cprojets','API\StatController@Cprojets');
 
 

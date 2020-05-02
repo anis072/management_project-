@@ -3,9 +3,11 @@
  * includes Vue and other libraries. It is a great starting point when
  * building robust, powerful web applications using Vue and Laravel.
  */
-import Vue from 'vue'
+
+ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import moment from 'moment'
+import VueProgressBar from 'vue-progressbar'
 import seww from "sweetalert2"
 window.seww =seww;
 import store from "./store"
@@ -22,7 +24,6 @@ import Acces from './Acces'
 Vue.prototype.$acces = new Acces(window.user);
 
 import project from './components/Project.vue'
-import projectdetail from './components/Projectdetail.vue'
 import calendar from './components/Calendar.vue'
 import setting from './components/Setting.vue'
 import client from './components/Client.vue'
@@ -68,6 +69,21 @@ const Toast = seww.mixin({
         toast.addEventListener('mouseleave', seww.resumeTimer)
       }
   })
+  const options = {
+    color: '#007bff',
+    failedColor: '#874b4b',
+    thickness: '5px',
+    transition: {
+      speed: '0.1s',
+      opacity: '0.6s',
+      termination: 300
+    },
+    autoRevert: true,
+    location: 'left',
+    inverse: false
+  }
+
+  Vue.use(VueProgressBar, options)
   window.Toast=Toast;
 window.fire =new Vue();
 const routes = [
@@ -88,8 +104,8 @@ const routes = [
     {path: '/detailleReclamation/:id' , component: DetailleReclamation},
     {path: '/profile/:id' , component: profile },
     {path: '/task/:id' , component: task},
-    {path: '/taskdetail/:id' , component: taskdetail },
-    {path: '/projectdetail/:id' , component: projectdetail }
+    {path: '/taskdetail/:id' , component: taskdetail }
+
   ];
 
   Vue.component(

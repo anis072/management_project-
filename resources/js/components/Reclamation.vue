@@ -84,6 +84,7 @@
               </div>
               <!-- /.card-body -->
             </div>
+            <pagination :data="reclamations.complain" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
         <!-- Modal -->
@@ -115,23 +116,21 @@
         <option v-for = "(projet , index) in projets.projects" :key="index" v-bind:value="projet.id">{{ projet.name }}</option>
       </select>
       <has-error :form="form" field="project"></has-error>
-    </div>
+     </div>
       <div class="form-group" >
       <label>Description</label>
       <textarea v-model="form.description" type="text" name="description"
         class="form-control" :class="{ 'is-invalid': form.errors.has('description') }"></textarea>
       <has-error :form="form" field="description"></has-error>
-    </div>
-       <div class="form-group"  >
-        <div class="input-group mt-2">
+     </div>
 
-                <input type="file" :class="{ 'is-invalid': form.errors.has('file') }" name="file" v-on:change="onFileChange">
-                <has-error :form="form" field="file"></has-error>
-
-        </div>
-
-    </div>
+      <div class="upload-btn-wrapper" id="upload">
+      <button class="btn" id="btn" >Upload a file</button>
+      <input type="file" name="file" v-on:change="onFileChange"/>
+      <div v-if="errors && errors.file" class="text-danger">{{ errors.file[0] }}</div>
       </div>
+
+       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
          <button  type="submit" class="btn btn-primary" >Add</button>
@@ -149,10 +148,13 @@
             return{
                     x:false,
                     idrec:'',
-                reclamations:{},
+                reclamations:{
+                    complain:{}
+                },
                 reclamation:{
                     id:''
                 },
+                errors:{},
                  types:{},
                 type:{
                     id:'',
@@ -184,6 +186,16 @@
             }
         },
                methods:{
+
+                   getResults(page = 1) {
+			      axios.get('/api/reclamation?page=' + page)
+				   .then(response => {
+					this.reclamations = response.data;
+                });},
+                   afficherReclamation(){
+                 axios.get('/api/reclamation').then(({ data }) =>(this.reclamations = data));
+                },
+
                    afficherProjet(){
                    axios.get('api/projetRec').then(({ data }) =>(this.projets = data));
                    },
@@ -195,20 +207,17 @@
                         this.file = e.target.files[0];
                     },
                ajouterReclamtion(){
-
-
                 let currentObj = this;
-
                 const config = {
                     headers: { 'content-type': 'multipart/form-data' }
                 }
-
                 let formData = new FormData();
                 formData.append('file', this.file);
-                this.form.post('api/reclamation', formData, config).then(()=>{
-
-
-                 fire.$emit('ajoutreclamation');
+                this.form.post('api/reclamation').then(()=>axios.post('api/complainfile',formData, config).catch((error)=> {
+                     if (error.response.status === 422 || error.response.status === 413) {
+                   this.errors = error.response.data.errors || {};  }
+                }).then(()=>{
+                fire.$emit('ajoutreclamation');
                 $("#ajouterReclamation").modal('hide');
                 Toast.fire({
                         icon: 'success',
@@ -220,12 +229,9 @@
 
                 }).catch(function (error) {
                     currentObj.output = error;
-                                    });
+                                    }));
                 },
-                afficherReclamation(){
-                 axios.get('api/reclamation').then(({ data }) =>(this.reclamations = data));
-                },
-                   chargerid($description){
+              chargerid($description){
                      this.desc=$description;
                    },
                  assignTo($id,$membre){
@@ -291,6 +297,7 @@
             },
              },
              created(){
+
                  this.afficherReclamation();
                    fire.$on('ajoutreclamation',()=>{
                      this.afficherReclamation();
@@ -305,5 +312,31 @@
                  });
                  this.getType();
              },
+
     }
 </script>
+<style scoped>
+#upload {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+}
+
+#btn {
+  border: 2px solid #007bff;
+  color: #007bff;
+  background-color: white;
+  padding: 8px 8px;
+  border-radius: 8px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#upload input[type=file] {
+  font-size: 40px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+</style>
