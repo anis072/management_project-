@@ -24,7 +24,7 @@
                   <button type="submit" class="btn btn-primary">Edit</button>
                 </div>
               </form>
-              <form @submit.prevent="ajoutrole()" v-if="$acces.Admin() " >
+              <form @submit.prevent="ajoutrole()" v-if="currentUser.role==='admin'" >
                 <div class="card-body">
                    <div class="form-group">
                     <label > Add Position Or Role:</label>
@@ -100,5 +100,13 @@ this.form.post('api/updateuserconnecte/').then(()=>{
                 });;
             },
         },
+        
+             computed: {
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
+   
     }
+    }
+
 </script>

@@ -1,2 +1,4 @@
 *
 !.gitignore
+nodes_modules
+.env
