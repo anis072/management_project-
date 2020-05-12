@@ -1,11 +1,10 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-           <div class="col-sm-12 mt-4">
-            <div class="card" v-if="$acces.Admin()">
+           <div class="col-sm-12 mt-4" >
+            <div class="card" >
               <div class="card-header">
                 <h3 class="card-title"> Projects:</h3>
-
                 <div class="card-tools">
                       <button class="btn btn-success ml-6 mb-3"  @click="newer" ><i class="fas fa-project-diagram"></i> Add</button>
 
@@ -71,7 +70,7 @@
             <pagination :data="projets.projets" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
- <div v-if="!$acces.Admin()">
+ <div >
    <not-found></not-found>
  </div>
         <div class="modal fade" id="AjouterProjet" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -105,7 +104,7 @@
       <has-error :form="form" field="client"></has-error>
     </div>
 
-        <div class="form-group" v-show="!x" v-if="!$acces.Chef()">
+        <div class="form-group" v-show="!x">
       <label >Team leader</label>
       <select v-model="form.leader" type="text" name="leader"
         class="form-control" :class="{ 'is-invalid': form.errors.has('leader') }">
@@ -164,10 +163,12 @@
 </template>
 
 <script>
+import { setAuthorization } from "../helpers/general";
     export default {
              data(){
                  return{
                      x:false,
+              AuthStr : localStorage.getItem('membre_token'),
               projets:{
                   projets:{},
               },
@@ -219,12 +220,14 @@
       chef:{
           id:'',
           name:''
-      }
+      },
+        user:JSON.parse(localStorage.getItem('user')),
                  }
              },
 
 
          created(){
+           
           //   axios.get('api/getc');
     axios.get('api/progress').then(({ data }) =>(this.progress = data.data));
       this.afficherClient();
@@ -244,7 +247,13 @@
 				this.projets = response.data;
                 });},
                 afficherProjet(){
-                   axios.get('/api/projet').then(({ data }) =>(this.projets = data));
+                let axiosConfig = {
+
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                };
+                  axios.get('/api/projet',axiosConfig).then(({ data }) =>(this.projets = data));
                 },
                ajouterProjet(){
                      this.$Progress.start()

@@ -13,13 +13,25 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group([
+
+//  'middleware' => 'api',
+ // 'namespace' => 'App\Http\Controllers',
+  'prefix' => 'auth'
+
+], function ($router) {
+
+  Route::post('login', 'API\AuthenController@login');
+  Route::post('logout', 'API\AuthenController@logout');
+  Route::post('refresh', 'AuthenController@refresh');
+  Route::post('me', 'AuthenController@me');
+  Route::get('/me','API\AuthenController@me');
 });
-Route::get('/home', 'API\HomeController@index')->name('home');
+Route::get('/notif','API\ProjetController@notifications');
+Route::get('/me','API\AuthenController@guard');
 Route::post('/login','API\AuthenController@login');
 Route::post('/userauth','API\AuthenController@userauth');
-
+//Route::group(['middleware' => 'jwt.auth'], function ($router) {
 //User
 Route::apiResource('client' ,'API\UserController@dashbord');
 Route::get('membrep','API\UserController@Membreprojet');
@@ -50,6 +62,7 @@ Route::get('/getProjects', 'API\ProjetController@getProjects');
 Route::apiResource('projet' ,'API\ProjetController');
 Route::post('/role' ,'API\ProjetController@role');
 Route::get('/role','API\ProjetController@getrole');
+Route::get('/projetadmin','API\ProjetController@adminp');
 Route::get('/getProjectsUserConnecte', 'API\ProjetController@getProjectsUserConnecte');
 
 //Commentaire
@@ -67,9 +80,7 @@ Route::apiResource('/calendar', 'API\CalenderController');
 
 //gantt
 
-Route::get('/data/{id}', 'API\GanttController@get');
 
-Route::get('/data', 'GanttController@get');
 
   Route::resource('/task', 'API\TaskController');
  Route::post('/task/{key}','API\TaskController@store');
@@ -105,8 +116,6 @@ Route::post('/reclamationAlert/{id}','API\ReclamationController@alertReclamation
 //profil
 Route::put('profile', 'API\UserController@updateProfile');
 Route::get('membrechef','API\UserController@Membrechefprojet');
-
-
 //File
 Route::get('/file/{id}','API\FileController@files');
 Route::post('formSubmit/{id}','API\FileController@formSubmit');
@@ -123,5 +132,9 @@ Route::get('/Uprojects','API\StatController@Uprojects');
 Route::get('/Ustats','API\StatController@Ustats');
 Route::get('/Utasks','API\StatController@Utasks');
 Route::get('/Cprojets','API\StatController@Cprojets');
+//});
 
+Route::get('/data/{id}', 'API\GanttController@get');
+
+Route::get('/data', 'GanttController@get');
 

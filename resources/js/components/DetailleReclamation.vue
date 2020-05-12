@@ -187,6 +187,7 @@ export default {
      name:'',
      id:''
      },
+       user:JSON.parse(localStorage.getItem('user')),
          }
 },
  methods:{
@@ -210,7 +211,12 @@ export default {
      },
  },
  created() {
-   axios.get('/api/filesComplain/'+this.key).then(({data}) => {this.files =data});
+     let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+   axios.get('/api/filesComplain/'+this.key,axiosConfig).then(({data}) => {this.files =data});
 
           },
 mounted() {

@@ -1,7 +1,7 @@
 <template>
 <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-12" v-if="!$acces.client()">
+            <div class="col-md-12" v-if="currentUser.role!=='client'">
                 <div class="card mr-9">
 
              <form @submit.prevent="Setid()">
@@ -36,6 +36,8 @@ export default {
 data(){
     return{
            key: this.$route.params.id,
+      user:JSON.parse(localStorage.getItem('user')),
+
     }
 },
   mounted: function () {
@@ -55,6 +57,11 @@ data(){
     }
 }, true);
   },
+   computed: {
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
+        }
 }
 </script>
 

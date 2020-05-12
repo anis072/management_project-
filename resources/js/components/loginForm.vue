@@ -1,36 +1,75 @@
 <template>
-<form>
-  <div class="form-group">
-    <label for="exampleInputEmail1">Adresse Email:</label>
-    <input type="email" class="form-control" v-model="user.email" id="exampleInputEmail1" aria-describedby="emailHelp">
-
+   <div class="login row justify-content-center mt-50">
+        <div class="col-md-6 ">
+            <div class="card ">
+              <div class="card-header" style="background-color: #1567d8;"><span class="align-middle" style="font-size:19px;color:seashell; ">
+                  <i class="fas fa-user" ></i>   <b>Join The Team</b></span></div>
+                <div class="card-body">
+                    <form @submit.prevent="authenticate">
+                        <div class="form-group row">
+                            <label for="email">Email:</label>
+                            <input type="email" v-model="form.email" class="form-control" placeholder="Email Address">
+                        </div>
+                        <div class="form-group row">
+                            <label for="password">Password:</label>
+                            <input type="password" v-model="form.password" class="form-control" placeholder="Password">
+                        </div>
+                        <div class="form-group row">
+                            <input type="submit" class="btn btn-primary" value="Login">
+                        </div>
+                        <div class="form-group row" v-if="authError">
+                            <p class="error">
+                                {{ authError }}
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
   </div>
-  <div class="form-group">
-    <label for="exampleInputPassword1">Mot de passe:</label>
-    <input type="password" class="form-control" v-model="user.password" id="exampleInputPassword1">
-  </div>
-  <div class="form-group form-check">
-    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-    <label class="form-check-label" for="exampleCheck1">Check me out</label>
-  </div>
-  <button type="submit" @click="login"    class="btn btn-primary">Submit</button>
-</form>
 </template>
 <script>
-export default{
-    data:()=>({
-      user:{
-          email:"",
-          password:""
-    }
-}),
-methods: {
-           login(){
-    this.$store.dispatch('currentUser/loginUser',this.user);
-}
-}
-}
 
+ import {login} from '../helpers/auth';
+export default {
+        name: "login",
+        data() {
+            return {
+                form: {
+                    email: '',
+                    password: ''
+                },
+                error: null
+            };
+        },
+        methods: {
+            authenticate() {
+                this.$store.dispatch('login');
 
-
+                login(this.$data.form)
+                    .then((res) => {
+                        this.$store.commit("loginSuccess", res);
+                        this.$router.push({path: '/home'});
+                    })
+                    .catch((error) => {
+                        this.$store.commit("loginFailed", {error});
+                    });
+            }
+        },
+        computed: {
+            authError() {
+                return this.$store.getters.authError;
+            }
+        }
+}
 </script>
+<style scoped>
+.error {
+    text-align: center;
+    color: red;
+
+}
+.login{
+    margin-top: 75px !important;
+}
+</style>

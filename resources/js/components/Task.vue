@@ -3,7 +3,7 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-12 mt-4">
-            <div class="card" v-if="!$acces.client()">
+            <div class="card" v-if="currentUser.role !== 'client'">
               <div class="card-header">
                 <h3 class="card-title">Tasks:</h3>
 
@@ -22,7 +22,7 @@
                       <th>Progression</th>
                       <th>Estimated Task duration</th>
                       <th>Created_at</th>
-                      <th v-if="$acces.Admin() || $acces.Chef()">Assign to</th>
+                      <th v-if=" currentUser.role ==='admin' || currentUser.role ==='chef de projet'">Assign to</th>
                       <th></th>
                     </tr>
                   </thead>
@@ -40,7 +40,7 @@
                       <td>{{ task.created_at  | date }} </td>
 
                         <td>
-    <div class="dropdown" v-if=" $acces.Admin() || $acces.Chef()">
+    <div class="dropdown"v-if=" currentUser.role ==='admin' || currentUser.role ==='chef de projet'">
    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
    <i class="fas fa-user-plus" style="color:#05dfd7;"></i>
    </a>
@@ -180,7 +180,9 @@
 
              },
              computed: {
-
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
              }
 
 

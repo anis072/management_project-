@@ -5,7 +5,7 @@
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title"> Complains:</h3>
-                <div class="card-tools" v-if="$acces.client()">
+                <div class="card-tools" v-if="currentUser.role==='client'">
                 <button class="btn btn-success ml-6 mb-3" data-toggle="modal" data-target="#ajouterReclamation" ><i class="fas fa-user"></i> Create </button>
                 </div>
               </div>
@@ -16,28 +16,28 @@
                     <tr>
                       <th scope="col">Type</th>
                       <th scope="col">Description</th>
-                      <th v-if="!$acces.client()" scope="col"> Advancement </th>
-                      <th v-if="$acces.client()" scope="col"> Advancement </th>
+                      <th v-if="currentUser.role!=='client'" scope="col"> Advancement </th>
+                      <th v-if="currentUser.role==='client'" scope="col"> Advancement </th>
                       <th scope="col">Project</th>
-                      <th v-if="!$acces.adminchef()" scope="col">Created_at</th>
-                     <th v-if="!$acces.client()" scope="col"> client </th>
-                     <th v-if="!$acces.client()" scope="col">Assign to</th>
-                     <th v-if="$acces.adminchef()" scope="col"> </th>
-                     <th v-if="$acces.adminchef()" scope="col"> </th>
+                      <th  scope="col">Created_at</th>
+                     <th v-if="currentUser.role !=='client'" scope="col"> client </th>
+                     <th v-if="currentUser.role!=='client'" scope="col">Assign to</th>
+                     <th v-if="currentUser.role==='admin' || currentUser.role==='chef de projet'" scope="col"> </th>
+                     <th v-if="currentUser.role==='admin' || currentUser.role==='chef de projet'" scope="col"> </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="reclamation in reclamations.complain.data" :key="reclamation.id">
                        <router-link :to="`/detailleReclamation/${reclamation.id}`" style="text-decoration:none; color:black;">  <td scope="row">{{reclamation.type}}</td> </router-link>
                        <td><a  style=""  href="#" @click="chargerid(reclamation.description)" class="btn btn-secondary" data-toggle="modal" data-target="#description"><i class="fas fa-sticky-note"></i></a></td>
-                      <td v-if="!$acces.client()"> {{reclamation.avancement}} </td>
-                      <td v-if="$acces.client()"><h6 v-if="reclamation.avancement == 'Pending Team leader validation'">In progress</h6>
+                      <td v-if="currentUser.role !=='client'"> {{reclamation.avancement}} </td>
+                      <td v-if="currentUser.role ==='client'"><h6 v-if="reclamation.avancement == 'Pending Team leader validation'">In progress</h6>
                       <h6 v-if="reclamation.avancement != 'Pending Team leader validation'">  {{reclamation.avancement}}</h6>
                       </td>
                       <td>{{reclamation.nameProjet}}</td>
                       <td v-if="!$acces.adminchef()">{{ reclamation.Created_at  | date }}</td>
-                      <td v-if="!$acces.client()"> {{reclamation.nameClient}} </td>
-                     <td v-if="$acces.adminchef()">
+                      <td v-if="currentUser.role !=='client'"> {{reclamation.nameClient}} </td>
+                     <td v-if="currentUser.role==='admin' || currentUser.role==='chef de projet'">
                       <div class="dropdown">
                         <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-user-plus" style="color:#05dfd7;"></i>
@@ -48,7 +48,7 @@
                         </div>
                       </div>
                       </td>
-                      <td v-for="membre in membres.User" :key="membre.id" v-if=" reclamation.employe_id == membre.id && !$acces.client()"><img class=" img-circle" :src="`/img/profile/${ membre.photo }`"
+                      <td v-for="membre in membres.User" :key="membre.id" v-if=" reclamation.employe_id == membre.id && currentUser.role !=='client' "><img class=" img-circle" :src="`/img/profile/${ membre.photo }`"
                       alt="User profile picture" style="width:35px;"><span class="ml-1" >{{ membre.name }}   </span>
                       </td>
                       <td v-if="$acces.adminchef()">
@@ -312,6 +312,11 @@
                  });
                  this.getType();
              },
+      computed: {
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
+        }
 
     }
 </script>

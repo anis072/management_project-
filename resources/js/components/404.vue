@@ -9,7 +9,7 @@
   <div class="wrap">
    <div class="logo">
     <h1>404</h1>
-    <p>  PAGE NON TROUVÉE!!!!!</p>
+    <p> PAGE NOT FOUND</p>
 
    </div>
   </div>
@@ -75,4 +75,4 @@ body{
 
 
 
-</style>
+

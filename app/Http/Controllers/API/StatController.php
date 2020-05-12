@@ -1,7 +1,6 @@
 <?php
 namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
-
 use App\Projet;
 use App\Task;
 use App\User;
@@ -62,7 +61,7 @@ class StatController extends Controller
         ]);
     }
     public function  Cprojets(){
-        $project= Projet::where('client_id',Auth()->id())->latest()->paginate(2);
+        $project= Projet::where('client_id',Auth()->id())->orderBy('progress','DESC')->latest()->paginate(6);
         return response()->json([
            "projects"=>$project
         ]) ;

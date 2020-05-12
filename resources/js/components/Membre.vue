@@ -2,12 +2,12 @@
 
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-12 mt-4">
+            <div class="col-md-12 mt-4" v-if="currentUser.role==='admin' || currentUser.role=='chef de projet'">
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Membres:</h3>
-                <div class="card-tools" v-if="$acces.Admin()">
-                  <button class="btn btn-success ml-6 mb-3"  @click="newer()"><i class="fas fa-user"></i> Add </button>
+                <div class="card-tools" >
+                  <button class="btn btn-success ml-6 mb-3" v-if="currentUser.role==='admin' "  @click="newer()"><i class="fas fa-user"></i> Add </button>
                 </div>
               </div>
               <!-- /.card-header -->
@@ -19,7 +19,7 @@
                       <th>Email</th>
                       <th>Role</th>
                       <th>Phone</th>
-                      <th>Created_at</th>    
+                      <th>Created_at</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -30,7 +30,7 @@
                       <td>{{ user.role }}</td>
                       <td>{{ user.phone }}</td>
                       <td>{{ user.created_at | date }}</td>
-                      <td v-if="$acces.Admin()">
+                      <td v-if="currentUser.role==='admin'">
                             <a href="#" class="btn" style="background-color: #00a8cc" @click="editMembre(user)"><i style="color:#fff;" class="fas fa-user-edit"></i></a>
                            <a href="#" class="btn btn-danger" @click="supprimerMembre(user.id)"><i class="fas fa-trash-alt"  ></i></a>
                   </td>
@@ -130,7 +130,10 @@
                 password:'',
                 role:'',
                 phone:''
-                })
+                }),
+                  user:JSON.parse(localStorage.getItem('user')),
+
+
             }
         },
                methods:{
@@ -141,7 +144,12 @@
                     });
                     },
                    afficherMembre(){
-                   axios.get('api/membre').then(({ data }) => (this.users = data));
+                    let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+                   axios.get('api/membre',axiosConfig).then(({ data }) => (this.users = data));
                    },
                ajouterMembre(){
                 this.form.post('api/membre').then(()=>{
@@ -207,7 +215,12 @@
                 })
             },
                   getRole(){
-                      axios.get('/api/role').then(({data})=>{
+                          let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+                      axios.get('/api/role',axiosConfig).then(({data})=>{
                      this.roles = data.data;
                       });
                   }
@@ -218,7 +231,12 @@
                      this.afficherMembre();
                  });
                  this.getRole();
-             }
+             },
+              computed: {
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
+        }
 
     }
 </script>

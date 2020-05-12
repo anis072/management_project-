@@ -167,5 +167,19 @@ class ProjetController extends Controller
          $user=Auth::user();
         return $user->projets;
     }
+    public function notifications()
+    {
+        $user= Auth()->user();
+    return response([
+        "user"=>$user
+    ]);
+    }
+
+    public function adminp(){
+      $projet =Projet::all();
+      return response()->json([
+          "projets"=>$projet
+      ]);
+   }
 
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-12 mt-4" v-if="$acces.Admin()" >
+        <div class="row justify-content-center" v-if="currentUser.role === 'admin'">
+            <div class="col-md-12 mt-4" >
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title"> Clients:</h3>
@@ -41,7 +41,7 @@
               </div>
               <!-- /.card-body -->
             </div>
-                                    <pagination :data="clients.client" @pagination-change-page="getResults"></pagination>
+               <pagination :data="clients.client" @pagination-change-page="getResults"></pagination>
             </div>
         </div>
          <div v-if="!$acces.Admin()">
@@ -102,7 +102,8 @@
 
 
 <script>
-    export default {
+
+export default {
         data(){
             return{
                 x:false,
@@ -117,18 +118,19 @@
                 password:'',
                 phone:''
                 }),
-                
+
                 projets:[],
                 projet:{
                     id:'',
                     name:'',
-                }
+                },
+                 user:JSON.parse(localStorage.getItem('user')),
 
             }
         },
 
                methods:{
-            
+
                  deleteClient(id){
              seww.fire({
             title: 'Are you sure?',
@@ -154,7 +156,7 @@
                 }).catch(()=>{
                     seww.fire(
                     'Failure !!!!'
-                  
+
 
                     );
                 });
@@ -168,11 +170,18 @@
                     });
                   },
                    afficherClient(){
-                    axios.get('api/afficheclient').then(({ data }) =>(this.clients = data));
+                    let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+                    axios.get('api/afficheclient',axiosConfig).then(({ data }) =>(this.clients = data));
                    },
-               ajouterClient(){
+               ajouterClient(){  this.$Progress.start()
                 this.form.post('api/ajouterClient').then(()=>{
+                     
                     this.form.reset();
+                    this.$Progress.finish()
                 fire.$emit('ajoutclient');
                 $("#AjouterClient").modal('hide');
 
@@ -224,9 +233,14 @@
                  fire.$on('ajoutclient',()=>{
                      this.afficherClient();
                  });
-                // axios.get('api/nameprojet' ).then(({ data }) =>(this.projets = data.data));;
+                // axios.get('api/nameprojet' ).then(({ data }) =>(this.projets = data.data));
 
-             }
+             },
+              computed: {
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
+        },
 
     }
 </script>

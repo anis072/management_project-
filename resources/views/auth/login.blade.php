@@ -15,8 +15,8 @@
                     <div class="card-header" style="background-color: #1567d8;"><span class="align-middle" style="font-size:19px;color:seashell; "><i class="fas fa-user" ></i>   <b>Rejoindre L'équipe<b></span></div>
 
                 <div class="card-body">
-                       <!--<login-form></login-form>-->
-               <form class="login-form" method="POST" action="{{ route('login') }}">
+                       <login-form></login-form>
+             <!--  <form class="login-form" method="POST" action="{{ route('login') }}">
                         {{ csrf_field() }}
 
                         <div class="field is-horizontal">
@@ -92,7 +92,7 @@
                                 </div>
                             </div>
                         </div>
-                    </form>
+                </form>-->
                 </div>
             </div>
         </div>

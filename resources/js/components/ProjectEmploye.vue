@@ -204,13 +204,13 @@ export default {
           user_id:'',
           name:'',
 
-      }
+      },
+        user:JSON.parse(localStorage.getItem('user')),
     }
   },
 
   created(){
-      axios.defaults.headers.common["Authorization"] = "Bearer" + localStorage.getItem("membre_token");
-      this.$store.dispatch('currentUser/getUser');
+
 
     this.afficherClient();
       this.afficherMembres();
@@ -224,7 +224,12 @@ export default {
          },
   methods: {
             afficherProjet(){
-            axios.get("/api/getProjectsUserConnecte").then(({ data }) => (this.projets = data));
+                let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+            axios.get("/api/getProjectsUserConnecte",axiosConfig).then(({ data }) => (this.projets = data));
             },
              ajouterProjet(){
                 this.form.post("api/projet")
@@ -306,25 +311,31 @@ export default {
            $("#AjouterProjet").modal('show')
               },
                afficherClient(){
-                   axios.get('api/clientp').then(({data})=>(this.clients =data));
+                      let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+                   axios.get('api/clientp',axiosConfig).then(({data})=>(this.clients =data));
 
                },
 
                     afficherMembres() {
-                axios.get("api/membrep").then(({ data }) => (this.membres = data));
+                    let axiosConfig = {
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                    };
+                axios.get("api/membrep",axiosConfig).then(({ data }) => (this.membres = data));
                        },
-                        chargerid($description){
+                     chargerid($description){
                      this.desc=$description;
                    },
 
 
   },
   computed:{
-      currentUser:{
-            get(){
-    return    this.$store.dispatch('currentUser/getUser');
-   }
-      }
+
 
   },
   name:'projectemploye'

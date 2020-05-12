@@ -1,8 +1,7 @@
 <template>
-
-    <div class="container">
+  <div class="container">
         <div class="row justify-content-center">
-            <div class="col-md-12 mt-4" v-if="$acces.Admin()">
+            <div class="col-md-12 mt-4" v-if="currentUser.role ==='admin'" >
             <div class="card">
               <div class="card-header">
                 <h3 class="card-title">Project team leaders:</h3>
@@ -111,6 +110,7 @@
     export default {
         data(){
             return{
+                 user:JSON.parse(localStorage.getItem('user')),
                  x:false,
                 users:{
                   Chef:{}
@@ -122,7 +122,7 @@
                 password:'',
                 phone:'',
                 role:'',
-                
+
                 })
             }
         },
@@ -135,7 +135,13 @@
                 });
            },
                afficherMembre(){
-                   axios.get('api/chefwP').then(({ data }) =>(this.users = data));
+                     let axiosConfig = {
+
+                    headers: {
+                    "Authorization": 'Bearer '+this.user['token']
+                    }
+                };
+                   axios.get('api/chefwP',axiosConfig).then(({ data }) =>(this.users = data));
                    },
                ajouterMembre(){
                 this.form.post('api/ajouterChefDeProjet').then(()=>{
@@ -149,7 +155,7 @@
                 });
                 },
                 misajour(){
-               
+
                this.form.put('api/membre/'+ this.form.id).then(function(){
                 $('#AjouterMembre').modal('hide')
                     seww.fire(
@@ -205,7 +211,12 @@
                   fire.$on('ajoutmembre',()=>{
                      this.afficherMembre();
                  });
-             }
+             },
+              computed: {
+            currentUser() {
+                return this.$store.getters.currentUser
+            }
+        },
 
     }
 </script>
